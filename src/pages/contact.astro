@@ -1,5 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA';
 ---
 
 <BaseLayout title="Contact — Revive Studios">
@@ -78,11 +80,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <h2 class="mb-8 font-serif text-3xl font-light text-charcoal">
           Send a Message
         </h2>
-        <form
-          action="https://formspree.io/f/placeholder"
-          method="POST"
-          class="space-y-6"
-        >
+        <form id="contact-form" class="space-y-6">
           <div>
             <label for="name" class="mb-2 block text-xs font-sans font-medium uppercase tracking-[0.15em] text-charcoal-light">
               Name
@@ -130,14 +128,86 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               class="w-full resize-none border border-warm-gray bg-white px-4 py-3 text-charcoal outline-none transition-colors focus:border-olive"
             ></textarea>
           </div>
+
+          <!-- Turnstile -->
+          <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="light"></div>
+
           <button
             type="submit"
-            class="w-full bg-olive px-8 py-3.5 text-xs font-sans font-medium uppercase tracking-[0.2em] text-white transition-colors hover:bg-olive-dark"
+            id="submit-btn"
+            class="w-full bg-olive px-8 py-3.5 text-xs font-sans font-medium uppercase tracking-[0.2em] text-white transition-colors hover:bg-olive-dark disabled:cursor-not-allowed disabled:opacity-50"
           >
             Send Message
           </button>
+
+          <!-- Status messages -->
+          <div id="form-success" class="hidden rounded border border-olive/30 bg-olive/10 p-4 text-sm text-olive-dark">
+            Thank you! We'll be in touch soon.
+          </div>
+          <div id="form-error" class="hidden rounded border border-red-300 bg-red-50 p-4 text-sm text-red-700">
+            <span id="error-text">Something went wrong. Please try again.</span>
+          </div>
         </form>
       </div>
     </div>
   </section>
 </BaseLayout>
+
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+  const successEl = document.getElementById('form-success')!;
+  const errorEl = document.getElementById('form-error')!;
+  const errorText = document.getElementById('error-text')!;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    successEl.classList.add('hidden');
+    errorEl.classList.add('hidden');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+
+    const formData = new FormData(form);
+    const turnstileInput = form.querySelector('[name="cf-turnstile-response"]') as HTMLInputElement;
+
+    const body = {
+      name: formData.get('name'),
+      email: formData.get('email'),
+      phone: formData.get('phone') || '',
+      message: formData.get('message'),
+      'cf-turnstile-response': turnstileInput?.value || '',
+    };
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        successEl.textContent = result.message || 'Thank you! We\'ll be in touch soon.';
+        successEl.classList.remove('hidden');
+        form.reset();
+        // Reset Turnstile widget
+        if (window.turnstile) {
+          window.turnstile.reset();
+        }
+      } else {
+        errorText.textContent = result.error || 'Something went wrong. Please try again.';
+        errorEl.classList.remove('hidden');
+      }
+    } catch {
+      errorText.textContent = 'Network error. Please check your connection and try again.';
+      errorEl.classList.remove('hidden');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send Message';
+    }
+  });
+</script>

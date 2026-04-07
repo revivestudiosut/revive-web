@@ -12,11 +12,14 @@ npm run build   # Static output to dist/
 
 ## Architecture
 
-- **Framework**: Astro 5 (static site, zero client JS except mobile menu)
+- **Framework**: Astro 5 (static site, minimal client JS)
 - **Styling**: Tailwind CSS 3 with custom design tokens in `tailwind.config.mjs`
 - **Pages**: `src/pages/` — index, about, services, portfolio, contact
 - **Components**: `src/components/` — Header, Footer (shared via BaseLayout)
 - **Layout**: `src/layouts/BaseLayout.astro` — wraps all pages with head, header, footer
+- **Backend**: Cloudflare Pages Function at `functions/api/contact.ts` — handles contact form
+- **Anti-spam**: Cloudflare Turnstile widget on the contact form
+- **Email**: Resend API for delivering contact form submissions
 
 ## Design System
 
@@ -74,12 +77,15 @@ src/
 │   ├── Header.astro            # Olive sticky nav + mobile menu
 │   └── Footer.astro            # Dark charcoal footer
 ├── pages/
-│   ├── index.astro             # Hero, purpose, services, CTA
-│   ├── about.astro             # Story, team, process
-│   ├── services.astro          # 4 services with photos
-│   ├── portfolio.astro         # Photo grid with hover overlays
-│   └── contact.astro           # Form + contact details
+│   ├── index.astro             # Homepage
+│   ├── about.astro             # Team bios, company story, design process
+│   ├── services.astro          # Service offerings with photos
+│   ├── portfolio.astro         # Project photo grid
+│   └── contact.astro           # Contact form (Turnstile + JS submission)
 └── styles/global.css           # Tailwind directives + base styles
+
+functions/
+└── api/contact.ts              # Pages Function: Turnstile verify → Resend email
 ```
 
 ## Images
@@ -93,4 +99,26 @@ All images live in `public/images/`. Key files:
 
 ## Contact Form
 
-The contact form currently points to a placeholder Formspree endpoint. Replace `https://formspree.io/f/placeholder` in `src/pages/contact.astro` with a real form handler before deploying.
+The contact form submits via JS to `/api/contact` (a Cloudflare Pages Function). Flow:
+1. User fills form, Turnstile widget generates a verification token
+2. JS posts form data + token to `/api/contact`
+3. Worker validates the Turnstile token, then sends email via Resend API
+4. Success/error shown inline on the page
+
+## Environment Management
+
+Uses **direnv** to auto-load environment variables per deployment tier.
+
+```
+.env                  # Shared defaults (checked in, no secrets)
+.env.dev              # Dev secrets (gitignored)
+.env.staging          # Staging secrets (gitignored)
+.env.production       # Production secrets (gitignored)
+.dev.vars             # Wrangler local dev secrets for Pages Functions (gitignored)
+.envrc                # direnv loader — reads DEPLOY_ENV to pick the right file
+.env.example          # Documents all required variables (checked in)
+```
+
+**Required variables**: `PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, `RESEND_API_KEY`, `CONTACT_TO_EMAIL`
+
+`PUBLIC_`-prefixed vars are exposed to client-side code by Astro at build time. Server-side secrets (`TURNSTILE_SECRET_KEY`, `RESEND_API_KEY`) are set as Cloudflare Pages environment variables via the dashboard, separated into Production and Preview environments.

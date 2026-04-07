@@ -4,3 +4,9 @@ dist/
 __pycache__/
 *.pyc
 .DS_Store
+
+# Environment secrets (per-environment overrides)
+.env.dev
+.env.staging
+.env.production
+.dev.vars

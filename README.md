@@ -9,11 +9,14 @@ Built with [Astro 5](https://astro.build) + [Tailwind CSS 3](https://tailwindcss
 - Node.js >= 22.12.0
 - [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/) for deployments (`npm install -g wrangler`)
 - Cloudflare account access (authenticate with `wrangler login`)
+- [direnv](https://direnv.net/) for environment management (`brew install direnv`)
 
 ## Getting Started
 
 ```bash
 npm install
+cp .env.example .env.dev       # Fill in your keys
+direnv allow                    # Auto-loads env vars
 npm run dev
 ```
 
@@ -64,10 +67,24 @@ src/
 │   ├── about.astro             # Team bios, company story, design process
 │   ├── services.astro          # Service offerings with photos
 │   ├── portfolio.astro         # Project photo grid
-│   └── contact.astro           # Contact form + details
+│   └── contact.astro           # Contact form (Turnstile + JS submit)
 └── styles/global.css           # Tailwind directives + base styles
 
+functions/api/contact.ts        # Cloudflare Pages Function (Turnstile + Resend)
 public/images/                  # All site photography and logos
 tailwind.config.mjs             # Design tokens (colors, fonts)
 astro.config.mjs                # Astro configuration
 ```
+
+## Environment Variables
+
+Environment-specific secrets are managed with direnv and `.env.*` files. See `.env.example` for all required variables.
+
+| Variable | Where used | Secret? |
+|----------|-----------|---------|
+| `PUBLIC_TURNSTILE_SITE_KEY` | Build time (Astro) | No |
+| `TURNSTILE_SECRET_KEY` | Runtime (Pages Function) | Yes |
+| `RESEND_API_KEY` | Runtime (Pages Function) | Yes |
+| `CONTACT_TO_EMAIL` | Runtime (Pages Function) | No |
+
+Runtime secrets are set in the Cloudflare dashboard under Workers & Pages → revive-web → Settings → Environment variables.
