@@ -2,6 +2,7 @@ interface Env {
   TURNSTILE_SECRET_KEY: string;
   RESEND_API_KEY: string;
   CONTACT_TO_EMAIL: string;
+  EMAIL_FROM?: string;
 }
 
 interface TurnstileResponse {
@@ -36,6 +37,9 @@ async function verifyTurnstile(token: string, secret: string, ip: string | null)
   });
 
   const outcome: TurnstileResponse = await result.json();
+  if (!outcome.success) {
+    console.error('Turnstile verification failed:', JSON.stringify(outcome));
+  }
   return outcome.success;
 }
 
@@ -49,7 +53,7 @@ async function sendEmail(env: Env, form: FormData): Promise<Response> {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'Revive Studios <noreply@revivestudiosut.com>',
+      from: env.EMAIL_FROM || 'Revive Studios <onboarding@resend.dev>',
       to: [env.CONTACT_TO_EMAIL],
       subject: `New inquiry from ${form.name}`,
       reply_to: form.email,

@@ -171,14 +171,22 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '1x0000000
     submitBtn.textContent = 'Sending...';
 
     const formData = new FormData(form);
-    const turnstileInput = form.querySelector('[name="cf-turnstile-response"]') as HTMLInputElement;
+    const turnstileToken = formData.get('cf-turnstile-response') as string || '';
+
+    if (!turnstileToken) {
+      errorText.textContent = 'Please wait for the verification to complete.';
+      errorEl.classList.remove('hidden');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send Message';
+      return;
+    }
 
     const body = {
       name: formData.get('name'),
       email: formData.get('email'),
       phone: formData.get('phone') || '',
       message: formData.get('message'),
-      'cf-turnstile-response': turnstileInput?.value || '',
+      'cf-turnstile-response': turnstileToken,
     };
 
     try {

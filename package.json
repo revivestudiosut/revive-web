@@ -10,9 +10,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "deploy:dev": "DEPLOY_ENV=dev npm run build && npx wrangler pages deploy dist --project-name revive-web --branch dev",
-    "deploy:staging": "DEPLOY_ENV=staging npm run build && npx wrangler pages deploy dist --project-name revive-web --branch staging",
-    "deploy:production": "DEPLOY_ENV=production npm run build && npx wrangler pages deploy dist --project-name revive-web --branch main"
+    "deploy:dev": "astro build --mode dev && npx wrangler pages deploy dist --project-name revive-web --branch dev",
+    "deploy:staging": "astro build --mode staging && npx wrangler pages deploy dist --project-name revive-web --branch staging",
+    "deploy:production": "astro build --mode production && npx wrangler pages deploy dist --project-name revive-web --branch main"
   },
   "dependencies": {
     "@astrojs/tailwind": "^6.0.2",
