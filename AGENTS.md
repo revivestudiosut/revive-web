@@ -62,9 +62,8 @@ npm run preview  # Preview production build
 
 ## Brand Assets
 
-- `design-assets/Revive_White.png` — white logo (for dark/olive backgrounds)
-- `design-assets/Revive_Green.png` — green logo (for light backgrounds)
-- `public/images/logo-white.png` — copy of white logo used by the site
+- `public/images/logo-white.png` — white logo (for dark/olive backgrounds) — used in header and footer
+- `public/images/logo-green.png` — green logo (for light backgrounds) — available but not currently used
 
 ## Deployment
 

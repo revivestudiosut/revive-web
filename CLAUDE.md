@@ -20,13 +20,28 @@ npm run build   # Static output to dist/
 
 ## Design System
 
-### Colors
-- **Olive** `#5f6961` — primary brand color, top banner, buttons, CTAs
+### Brand Palette (from original design system)
+
+| Token | Hex | RGB | Usage |
+|-------|-----|-----|-------|
+| Olive | `#5f6961` | 95, 105, 97 | Primary brand — top banner, buttons, CTAs |
+| Taupe 1 | `#f0eade` | 240, 234, 222 | Alternate section backgrounds (`cream-dark`) |
+| Taupe 2 | `#e6e0d0` | 230, 224, 208 | Borders, dividers (`warm-gray`) |
+| Taupe 3 | `#c7bead` | 199, 190, 173 | Available for subtle accents |
+| Taupe 4 | `#b5ad9e` | 181, 173, 158 | Available for muted elements |
+| Taupe 5 | `#a39886` | 163, 152, 134 | Available for secondary text |
+| Mauve Light | `#bb9c87` | 187, 156, 135 | Warm accent option |
+| Mauve Dark | `#84675a` | 132, 103, 90 | Warm accent option (darker) |
+
+### Tailwind Tokens (in `tailwind.config.mjs`)
+- **Olive** `#5f6961` / **Olive Light** `#7a847c` / **Olive Dark** `#4a534c`
 - **Cream** `#faf8f5` — page background
-- **Cream Dark** `#f0eade` — alternate section backgrounds
+- **Cream Dark** `#f0eade` — alternate section backgrounds (= Taupe 1)
+- **Warm Gray** `#e6e0d0` — borders, dividers (= Taupe 2)
 - **Charcoal** `#2c2c2c` — body text
 - **Charcoal Light** `#6b6b6b` — muted/secondary text
-- **Warm Gray** `#e6e0d0` — borders, dividers
+
+Not all brand palette colors are in the Tailwind config yet. Add Taupe 3–5 and the Mauves to `tailwind.config.mjs` if needed.
 
 ### Typography
 - **Headings**: Cormorant Garamond (serif) — weights 300, 400, 600
@@ -70,12 +85,11 @@ src/
 ## Images
 
 All images live in `public/images/`. Key files:
-- `logo-white.png` — white logo for the olive header (copied from design-assets/)
+- `logo-white.png` — white logo for dark/olive backgrounds (header, footer)
+- `logo-green.png` — green logo for light backgrounds
 - `hero-kitchen.jpg` — homepage hero background
 - `megan-photo.jpg`, `cassidy-photo.jpg` — team portraits
 - `portfolio-*.jpg`, `piano-room.png`, etc. — project photography
-
-Original brand assets are in `design-assets/` (Revive_White.png, Revive_Green.png).
 
 ## Contact Form
 
