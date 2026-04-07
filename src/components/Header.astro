@@ -1,0 +1,107 @@
+---
+const currentPath = Astro.url.pathname;
+
+const navLinks = [
+  { href: '/', label: 'Home' },
+  { href: '/about', label: 'About' },
+  { href: '/services', label: 'Services' },
+  { href: '/portfolio', label: 'Portfolio' },
+];
+---
+
+<header class="sticky top-0 z-50 bg-olive">
+  <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-3 md:px-12">
+    <a href="/" class="flex-shrink-0">
+      <img
+        src="/images/logo-white.png"
+        alt="Revive Studios"
+        class="h-14 w-auto md:h-16"
+      />
+    </a>
+
+    <!-- Desktop nav -->
+    <div class="hidden items-center gap-8 md:flex">
+      {navLinks.map((link) => (
+        <a
+          href={link.href}
+          class:list={[
+            'text-xs font-sans font-medium uppercase tracking-[0.15em] transition-colors',
+            currentPath === link.href
+              ? 'text-white'
+              : 'text-white/70 hover:text-white',
+          ]}
+        >
+          {link.label}
+        </a>
+      ))}
+      <a
+        href="/contact"
+        class="ml-2 border border-white px-5 py-2 text-xs font-sans font-medium uppercase tracking-[0.15em] text-white transition-colors hover:bg-white hover:text-olive"
+      >
+        Book Consultation
+      </a>
+    </div>
+
+    <!-- Mobile hamburger -->
+    <button
+      id="mobile-menu-btn"
+      class="flex flex-col gap-1.5 md:hidden"
+      aria-label="Toggle menu"
+    >
+      <span class="block h-0.5 w-6 bg-white transition-transform" id="bar1"></span>
+      <span class="block h-0.5 w-6 bg-white transition-opacity" id="bar2"></span>
+      <span class="block h-0.5 w-6 bg-white transition-transform" id="bar3"></span>
+    </button>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div
+    id="mobile-menu"
+    class="hidden flex-col gap-6 bg-olive px-6 pb-8 pt-4 md:hidden"
+  >
+    {navLinks.map((link) => (
+      <a
+        href={link.href}
+        class:list={[
+          'text-sm font-sans font-medium uppercase tracking-[0.15em] transition-colors',
+          currentPath === link.href
+            ? 'text-white'
+            : 'text-white/70 hover:text-white',
+        ]}
+      >
+        {link.label}
+      </a>
+    ))}
+    <a
+      href="/contact"
+      class="mt-2 border border-white px-5 py-2 text-center text-sm font-sans font-medium uppercase tracking-[0.15em] text-white transition-colors hover:bg-white hover:text-olive"
+    >
+      Book Consultation
+    </a>
+  </div>
+</header>
+
+<script>
+  const btn = document.getElementById('mobile-menu-btn');
+  const menu = document.getElementById('mobile-menu');
+  const bar1 = document.getElementById('bar1');
+  const bar2 = document.getElementById('bar2');
+  const bar3 = document.getElementById('bar3');
+
+  btn?.addEventListener('click', () => {
+    const isOpen = menu?.classList.contains('flex');
+    if (isOpen) {
+      menu?.classList.remove('flex');
+      menu?.classList.add('hidden');
+      bar1?.classList.remove('translate-y-2', 'rotate-45');
+      bar2?.classList.remove('opacity-0');
+      bar3?.classList.remove('-translate-y-2', '-rotate-45');
+    } else {
+      menu?.classList.remove('hidden');
+      menu?.classList.add('flex');
+      bar1?.classList.add('translate-y-2', 'rotate-45');
+      bar2?.classList.add('opacity-0');
+      bar3?.classList.add('-translate-y-2', '-rotate-45');
+    }
+  });
+</script>

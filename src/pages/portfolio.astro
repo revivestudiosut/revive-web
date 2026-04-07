@@ -1,0 +1,139 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const projects = [
+  {
+    title: 'Luxe Kitchen',
+    location: 'Alpine, UT',
+    image: '/images/hero-kitchen.jpg',
+    span: 'md:col-span-2',
+  },
+  {
+    title: 'Mountain View Living',
+    location: 'Alpine, UT',
+    image: '/images/piano-room.png',
+    span: '',
+  },
+  {
+    title: 'Serene Bedroom',
+    location: 'Alpine, UT',
+    image: '/images/portfolio-1.jpg',
+    span: '',
+  },
+  {
+    title: 'Elegant Dining',
+    location: 'Alpine, UT',
+    image: '/images/portfolio-2.jpg',
+    span: '',
+  },
+  {
+    title: 'Country Kitchen',
+    location: 'Osceola, IN',
+    image: '/images/warm-kitchen.jpg',
+    span: '',
+  },
+  {
+    title: 'Cozy Reading Nook',
+    location: 'Alpine, UT',
+    image: '/images/portfolio-3.jpg',
+    span: '',
+  },
+  {
+    title: 'Green Tile Bathroom',
+    location: 'Alpine, UT',
+    image: '/images/portfolio-4.jpg',
+    span: '',
+  },
+  {
+    title: 'Open Concept Living',
+    location: 'Osceola, IN',
+    image: '/images/elegant-dining-kitchen.jpg',
+    span: 'md:col-span-2',
+  },
+  {
+    title: 'Serenity Suite',
+    location: 'Alpine, UT',
+    image: '/images/serenity-suite-bathroom.png',
+    span: '',
+  },
+  {
+    title: 'Elegant Laundry',
+    location: 'Alpine, UT',
+    image: '/images/laundry-room.png',
+    span: '',
+  },
+  {
+    title: 'Gallery Wall',
+    location: 'Alpine, UT',
+    image: '/images/gallery-wall.png',
+    span: '',
+  },
+  {
+    title: 'Cozy Basement',
+    location: 'Alpine, UT',
+    image: '/images/cozy-haven-basement.jpg',
+    span: '',
+  },
+];
+---
+
+<BaseLayout title="Portfolio — Revive Studios">
+  <!-- Page Header -->
+  <section class="px-6 pb-12 pt-28 md:px-12 md:pb-16 md:pt-36">
+    <div class="mx-auto max-w-7xl">
+      <h1 class="mb-6 font-serif text-5xl font-light text-charcoal md:text-6xl">
+        Our Portfolio
+      </h1>
+      <p class="max-w-2xl text-lg text-charcoal-light">
+        Explore our curated collection of thoughtfully designed spaces that
+        blend minimalist aesthetics with warmth and functionality.
+      </p>
+    </div>
+  </section>
+
+  <!-- Portfolio Grid -->
+  <section class="px-6 pb-20 md:px-12 md:pb-28">
+    <div class="mx-auto max-w-7xl">
+      <div class="grid gap-4 md:grid-cols-3">
+        {projects.map((project) => (
+          <div class:list={['group relative cursor-pointer overflow-hidden', project.span]}>
+            <div class="aspect-[4/3] overflow-hidden">
+              <img
+                src={project.image}
+                alt={project.title}
+                class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                loading="lazy"
+              />
+            </div>
+            <div class="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+              <div class="p-6">
+                <h3 class="font-serif text-xl font-light text-white">
+                  {project.title}
+                </h3>
+                <p class="text-sm text-white/70">{project.location}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="bg-olive px-6 py-20 md:px-12 md:py-28">
+    <div class="mx-auto max-w-3xl text-center">
+      <h2 class="mb-4 font-serif text-4xl font-light text-white md:text-5xl">
+        Love What You See?
+      </h2>
+      <p class="mb-8 text-lg text-white/80">
+        Let's create something beautiful for your home.
+      </p>
+      <a
+        href="/contact"
+        class="inline-block border-2 border-white px-8 py-3.5 text-xs font-sans font-medium uppercase tracking-[0.2em] text-white transition-all hover:bg-white hover:text-olive"
+      >
+        Book a Consultation
+      </a>
+    </div>
+  </section>
+</BaseLayout>

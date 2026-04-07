@@ -1,0 +1,153 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout>
+  <!-- Hero -->
+  <section class="relative flex min-h-screen items-center justify-center">
+    <img
+      src="/images/hero-kitchen.jpg"
+      alt="Luxe kitchen designed by Revive Studios"
+      class="absolute inset-0 h-full w-full object-cover"
+    />
+    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/10"></div>
+    <div class="relative z-10 px-6 text-center">
+      <h1 class="mb-6 font-serif text-5xl font-light text-white md:text-7xl lg:text-8xl">
+        Revive Your Home.
+      </h1>
+      <p class="mb-10 text-lg text-white/90 md:text-xl">
+        Design made simple, homes made personal
+      </p>
+      <a
+        href="/contact"
+        class="inline-block border-2 border-white bg-white/10 px-8 py-3.5 text-xs font-sans font-medium uppercase tracking-[0.2em] text-white backdrop-blur-sm transition-all hover:bg-white hover:text-charcoal"
+      >
+        Start Your Project
+      </a>
+    </div>
+  </section>
+
+  <!-- Design with Purpose -->
+  <section class="px-6 py-20 md:px-12 md:py-28">
+    <div class="mx-auto grid max-w-7xl items-center gap-12 md:grid-cols-2 md:gap-20">
+      <div>
+        <h2 class="mb-8 font-serif text-4xl font-light text-charcoal md:text-5xl">
+          Design with Purpose
+        </h2>
+        <p class="mb-8 text-lg leading-relaxed text-charcoal-light">
+          At Revive Studios, we help you create a home that feels truly yours.
+          From guiding you step by step to simplifying choices and coordinating
+          with contractors, we take care of the details so you can enjoy a
+          beautiful, comfortable space made for your family.
+        </p>
+        <a
+          href="/about"
+          class="inline-block border border-olive px-6 py-3 text-xs font-sans font-medium uppercase tracking-[0.15em] text-olive transition-colors hover:bg-olive hover:text-white"
+        >
+          Learn More
+        </a>
+      </div>
+      <div class="overflow-hidden">
+        <img
+          src="/images/piano-room.png"
+          alt="Living room with mountain views designed by Revive Studios"
+          class="h-auto w-full object-cover"
+          loading="lazy"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- What We Do -->
+  <section class="bg-cream-dark px-6 py-20 md:px-12 md:py-28">
+    <div class="mx-auto max-w-7xl">
+      <div class="mb-16 text-center">
+        <h2 class="mb-4 font-serif text-4xl font-light text-charcoal md:text-5xl">
+          What We Do
+        </h2>
+        <p class="text-charcoal-light">
+          Comprehensive design services tailored to your needs
+        </p>
+      </div>
+      <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          {
+            title: 'Design Consultation',
+            description: 'Personalized living spaces that reflect your lifestyle',
+            image: '/images/portfolio-2.jpg',
+          },
+          {
+            title: 'Material & Finish Selections',
+            description: 'Curated accents and finishing touches for your space',
+            image: '/images/portfolio-4.jpg',
+          },
+          {
+            title: 'Space Planning',
+            description: 'Transform existing spaces with thoughtful redesign',
+            image: '/images/portfolio-3.jpg',
+          },
+          {
+            title: 'Furniture & Decor',
+            description: 'Expert guidance for your design journey',
+            image: '/images/portfolio-1.jpg',
+          },
+        ].map((service) => (
+          <a href="/services" class="group cursor-pointer">
+            <div class="mb-5 aspect-[4/5] overflow-hidden">
+              <img
+                src={service.image}
+                alt={service.title}
+                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+              />
+            </div>
+            <h3 class="mb-2 font-serif text-xl font-light text-charcoal">
+              {service.title}
+            </h3>
+            <p class="text-sm leading-relaxed text-charcoal-light">
+              {service.description}
+            </p>
+          </a>
+        ))}
+      </div>
+      <div class="mt-14 text-center">
+        <a
+          href="/services"
+          class="inline-block border border-olive px-6 py-3 text-xs font-sans font-medium uppercase tracking-[0.15em] text-olive transition-colors hover:bg-olive hover:text-white"
+        >
+          Explore All Services
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Photo Break -->
+  <section class="relative h-[50vh] md:h-[60vh]">
+    <img
+      src="/images/gallery-wall.png"
+      alt="Gallery wall styled by Revive Studios"
+      class="h-full w-full object-cover"
+      loading="lazy"
+    />
+  </section>
+
+  <!-- Ready to Begin -->
+  <section class="bg-olive px-6 py-20 md:px-12 md:py-28">
+    <div class="mx-auto max-w-3xl text-center">
+      <h2 class="mb-6 font-serif text-4xl font-light text-white md:text-5xl">
+        Ready to Begin?
+      </h2>
+      <p class="mb-10 text-lg leading-relaxed text-white/80">
+        Let's collaborate to create a space that truly feels like home. Book a
+        consultation today and start your journey toward a beautifully designed
+        interior.
+      </p>
+      <a
+        href="/contact"
+        class="inline-block border-2 border-white px-8 py-3.5 text-xs font-sans font-medium uppercase tracking-[0.2em] text-white transition-all hover:bg-white hover:text-olive"
+      >
+        Book a Consultation
+      </a>
+    </div>
+  </section>
+</BaseLayout>

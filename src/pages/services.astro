@@ -1,0 +1,151 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const services = [
+  {
+    title: 'Design Consultations',
+    description: 'Expert guidance for your design journey, available virtually or in-person.',
+    details: 'Get professional advice on color schemes, materials, furniture selection, and overall design direction.',
+    image: '/images/piano-room.png',
+  },
+  {
+    title: 'Space Planning & Styling',
+    description: 'Optimize layouts and enhance functionality with expert space planning.',
+    details: 'From furniture arrangement to decor selection, we maximize your space\'s potential while maintaining visual harmony.',
+    image: '/images/elegant-dining-kitchen.jpg',
+  },
+  {
+    title: 'Renovation & Remodeling',
+    description: 'Breathe new life into existing spaces with thoughtful transformations.',
+    details: 'Our renovation expertise combines structural optimization with aesthetic refinement for stunning before-and-after results.',
+    image: '/images/warm-kitchen.jpg',
+  },
+  {
+    title: 'Holiday & Front Porch Decor',
+    description: 'Full-service curation and installation of seasonal and year-round decor.',
+    details: 'We design and style welcoming, holiday spaces — from festive home decor to thoughtfully arranged front porch elements.',
+    image: '/images/cozy-haven-basement.jpg',
+  },
+];
+
+const process = [
+  {
+    number: '01',
+    title: 'Discovery & Consultation',
+    description: 'We begin by understanding your vision, lifestyle, and functional needs through in-depth conversations and site analysis.',
+  },
+  {
+    number: '02',
+    title: 'Concept Development',
+    description: 'Our team creates mood boards, color palettes, and preliminary layouts that capture your desired aesthetic.',
+  },
+  {
+    number: '03',
+    title: 'Design Refinement',
+    description: 'We refine the concept with detailed drawings, material selections, and 3D visualizations for your approval.',
+  },
+  {
+    number: '04',
+    title: 'Implementation',
+    description: 'From procurement to installation, we manage every detail to bring your vision to life seamlessly.',
+  },
+];
+---
+
+<BaseLayout title="Services — Revive Studios">
+  <!-- Page Header -->
+  <section class="px-6 pb-8 pt-28 md:px-12 md:pb-12 md:pt-36">
+    <div class="mx-auto max-w-7xl">
+      <h1 class="mb-6 font-serif text-5xl font-light text-charcoal md:text-6xl">
+        Our Services
+      </h1>
+      <p class="max-w-2xl text-lg leading-relaxed text-charcoal-light">
+        We offer comprehensive interior design services tailored to your unique
+        needs. From initial concept to final installation, we guide you through
+        every step of creating spaces that inspire.
+      </p>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section class="px-6 pb-20 md:px-12 md:pb-28">
+    <div class="mx-auto max-w-7xl space-y-20 md:space-y-28">
+      {services.map((service, i) => (
+        <div class:list={[
+          'grid items-center gap-12 md:grid-cols-2 md:gap-16',
+          i % 2 === 1 && 'md:[&>*:first-child]:order-2',
+        ]}>
+          <div class="overflow-hidden">
+            <img
+              src={service.image}
+              alt={service.title}
+              class="aspect-[4/3] h-auto w-full object-cover"
+              loading="lazy"
+            />
+          </div>
+          <div>
+            <h2 class="mb-4 font-serif text-3xl font-light text-charcoal md:text-4xl">
+              {service.title}
+            </h2>
+            <p class="mb-4 text-lg leading-relaxed text-charcoal-light">
+              {service.description}
+            </p>
+            <p class="text-base leading-relaxed text-charcoal-light">
+              {service.details}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Design Process -->
+  <section class="bg-cream-dark px-6 py-20 md:px-12 md:py-28">
+    <div class="mx-auto max-w-7xl">
+      <div class="mb-16">
+        <h2 class="mb-4 font-serif text-4xl font-light text-charcoal md:text-5xl">
+          Our Design Process
+        </h2>
+        <p class="max-w-2xl text-charcoal-light leading-relaxed">
+          Every project begins with understanding your vision. We collaborate
+          closely with you through consultation, concept development, design
+          refinement, and implementation to ensure your space exceeds
+          expectations.
+        </p>
+      </div>
+      <div class="grid gap-12 md:grid-cols-4 md:gap-8">
+        {process.map((step) => (
+          <div>
+            <span class="mb-4 block font-serif text-5xl font-light text-olive/30">
+              {step.number}
+            </span>
+            <h3 class="mb-3 font-serif text-xl font-light text-charcoal">
+              {step.title}
+            </h3>
+            <p class="text-sm leading-relaxed text-charcoal-light">
+              {step.description}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="bg-olive px-6 py-20 md:px-12 md:py-28">
+    <div class="mx-auto max-w-3xl text-center">
+      <h2 class="mb-4 font-serif text-4xl font-light text-white md:text-5xl">
+        Ready to Start Your Project?
+      </h2>
+      <p class="mb-8 text-lg text-white/80">
+        Let's discuss how we can transform your space.
+      </p>
+      <a
+        href="/contact"
+        class="inline-block border-2 border-white px-8 py-3.5 text-xs font-sans font-medium uppercase tracking-[0.2em] text-white transition-all hover:bg-white hover:text-olive"
+      >
+        Book a Consultation
+      </a>
+    </div>
+  </section>
+</BaseLayout>
