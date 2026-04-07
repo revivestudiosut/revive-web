@@ -16,9 +16,12 @@ Static marketing website for Revive Studios, an interior design company in Alpin
 ## Commands
 
 ```bash
-npm run dev      # Start dev server on port 4321
-npm run build    # Build static site to dist/
-npm run preview  # Preview production build
+npm run dev               # Start local dev server on port 4321
+npm run build             # Build static site to dist/
+npm run preview           # Preview production build locally
+npm run deploy:dev        # Build + deploy to dev (dev.revive-web.pages.dev)
+npm run deploy:staging    # Build + deploy to staging (staging.revive-web.pages.dev)
+npm run deploy:production # Build + deploy to production (revive-web.pages.dev / revivestudiosut.com)
 ```
 
 ## Making Changes
@@ -65,8 +68,16 @@ npm run preview  # Preview production build
 - `public/images/logo-white.png` — white logo (for dark/olive backgrounds) — used in header and footer
 - `public/images/logo-green.png` — green logo (for light backgrounds) — available but not currently used
 
-## Deployment
+## Deployment (Cloudflare Pages)
 
-Static site — deploy the `dist/` output to any static host (Netlify, Vercel, Cloudflare Pages). No server-side rendering needed.
+Hosted on Cloudflare Pages as project `revive-web`.
 
-Before deploying: replace the placeholder Formspree URL in `src/pages/contact.astro` with a real form endpoint.
+| Environment | URL | Command | Branch |
+|-------------|-----|---------|--------|
+| Dev | `dev.revive-web.pages.dev` | `npm run deploy:dev` | `dev` |
+| Staging | `staging.revive-web.pages.dev` | `npm run deploy:staging` | `staging` |
+| Production | `revive-web.pages.dev` / `revivestudiosut.com` | `npm run deploy:production` | `main` |
+
+**Workflow**: dev → staging → production. Validate at each stage before promoting.
+
+Production custom domain (`revivestudiosut.com`) is configured via Cloudflare Pages custom domains once DNS is pointed to Cloudflare.
