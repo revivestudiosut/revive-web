@@ -1,0 +1,104 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { projects, getAdjacentProjects } from '../../data/projects';
+import type { Project } from '../../data/projects';
+
+export function getStaticPaths() {
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+const { prev, next } = getAdjacentProjects(project.slug);
+---
+
+<BaseLayout title={`${project.title} — Revive Studios`}>
+  <!-- Back Link + Header -->
+  <section class="px-6 pb-8 pt-28 md:px-12 md:pb-12 md:pt-36">
+    <div class="mx-auto max-w-7xl">
+      <a
+        href="/portfolio"
+        class="mb-8 inline-flex items-center gap-2 text-sm text-charcoal-light transition-colors hover:text-olive"
+      >
+        <span>&larr;</span> Back to Portfolio
+      </a>
+      <h1 class="mb-3 font-serif text-4xl font-light text-charcoal md:text-5xl lg:text-6xl">
+        {project.title}
+      </h1>
+      <p class="mb-6 text-sm uppercase tracking-[0.1em] text-olive">
+        {project.location}
+      </p>
+      <p class="max-w-3xl text-lg leading-relaxed text-charcoal-light">
+        {project.description}
+      </p>
+    </div>
+  </section>
+
+  <!-- Photo Gallery -->
+  <section class="px-6 pb-20 md:px-12 md:pb-28">
+    <div class="mx-auto max-w-7xl space-y-4">
+      {project.images.map((image, i) => (
+        <div class="overflow-hidden">
+          <img
+            src={image}
+            alt={`${project.title} — Photo ${i + 1}`}
+            class="h-auto w-full object-cover"
+            loading={i === 0 ? 'eager' : 'lazy'}
+          />
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Prev / Next Navigation -->
+  {(prev || next) && (
+    <section class="border-t border-warm-gray px-6 py-16 md:px-12">
+      <div class="mx-auto flex max-w-7xl items-stretch justify-between gap-8">
+        {prev ? (
+          <a href={`/portfolio/${prev.slug}`} class="group flex-1">
+            <p class="mb-2 text-xs font-sans font-medium uppercase tracking-[0.15em] text-charcoal-light">
+              Previous Project
+            </p>
+            <p class="font-serif text-xl font-light text-charcoal transition-colors group-hover:text-olive md:text-2xl">
+              {prev.title}
+            </p>
+          </a>
+        ) : <div class="flex-1" />}
+        {next ? (
+          <a href={`/portfolio/${next.slug}`} class="group flex-1 text-right">
+            <p class="mb-2 text-xs font-sans font-medium uppercase tracking-[0.15em] text-charcoal-light">
+              Next Project
+            </p>
+            <p class="font-serif text-xl font-light text-charcoal transition-colors group-hover:text-olive md:text-2xl">
+              {next.title}
+            </p>
+          </a>
+        ) : <div class="flex-1" />}
+      </div>
+    </section>
+  )}
+
+  <!-- CTA -->
+  <section class="bg-olive px-6 py-20 md:px-12 md:py-28">
+    <div class="mx-auto max-w-3xl text-center">
+      <h2 class="mb-4 font-serif text-4xl font-light text-white md:text-5xl">
+        Love This Project?
+      </h2>
+      <p class="mb-8 text-lg text-white/80">
+        Let's create something just as beautiful for your home.
+      </p>
+      <a
+        href="/contact"
+        class="inline-block border-2 border-white px-8 py-3.5 text-xs font-sans font-medium uppercase tracking-[0.2em] text-white transition-all hover:bg-white hover:text-olive"
+      >
+        Book a Consultation
+      </a>
+    </div>
+  </section>
+</BaseLayout>
