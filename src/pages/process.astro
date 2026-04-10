@@ -1,0 +1,249 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const steps = [
+  {
+    number: '01',
+    title: 'Discovery & Consultation',
+    description:
+      'We begin by understanding your vision, lifestyle, and functional needs through in-depth conversations and site analysis.',
+    image: '/images/piano-room.png',
+    imageAlt: 'Living room with mountain views — understanding your space',
+  },
+  {
+    number: '02',
+    title: 'Concept Development',
+    description:
+      'Our team creates mood boards, color palettes, and preliminary layouts that capture your desired aesthetic.',
+    image: '/images/portfolio-2.jpg',
+    imageAlt: 'Elegant dining room — curated design concept',
+  },
+  {
+    number: '03',
+    title: 'Design Refinement',
+    description:
+      'We refine the concept with detailed drawings, material selections, and 3D visualizations for your approval.',
+    image: '/images/portfolio-4.jpg',
+    imageAlt: 'Green tile bathroom — refined material selections',
+  },
+  {
+    number: '04',
+    title: 'Implementation',
+    description:
+      'From procurement to installation, we manage every detail to bring your vision to life seamlessly.',
+    image: '/images/hero-kitchen.jpg',
+    imageAlt: 'Luxe kitchen — the finished result',
+  },
+];
+---
+
+<BaseLayout title="Our Process — Revive Studios">
+  <!-- Page Header -->
+  <section class="px-6 pb-12 pt-28 md:px-12 md:pb-20 md:pt-36">
+    <div class="mx-auto max-w-7xl">
+      <h1 class="mb-6 font-serif text-5xl font-light text-charcoal md:text-6xl">
+        Our Process
+      </h1>
+      <p class="max-w-2xl text-lg leading-relaxed text-charcoal-light">
+        Every project begins with understanding your vision. We collaborate
+        closely with you through four intentional phases — from first
+        conversation to final reveal.
+      </p>
+    </div>
+  </section>
+
+  <!-- Process Steps -->
+  <section class="px-6 pb-20 md:px-12 md:pb-28">
+    <div class="mx-auto max-w-6xl">
+      {steps.map((step, i) => {
+        const isEven = i % 2 === 0;
+        const isFirst = i === 0;
+        const isLast = i === steps.length - 1;
+
+        /*
+         * Desktop layout uses a 2-column grid with gap-x-16.
+         * The zigzag timeline line lives inside the text column (absolutely positioned)
+         * and connector divs between steps draw the horizontal crossover.
+         *
+         * Line X positions (circle center):
+         *   Left column:  11px from container left
+         *   Right column: calc(50% + 2rem + 11px) from container left
+         *     (50% = half container, 2rem = half of gap-x-16, 11px = circle center offset)
+         */
+        return (
+          <>
+            <div class="process-step" data-step={i}>
+              {/* ---- MOBILE ---- */}
+              <div class="relative pb-12 pl-10 md:hidden">
+                {!isLast && (
+                  <div class="timeline-line absolute left-[11px] top-3 bottom-0 w-px bg-warm-gray" aria-hidden="true"></div>
+                )}
+                <div class="timeline-circle absolute left-0 top-0 z-10 flex h-6 w-6 items-center justify-center rounded-full border-2 border-olive bg-cream" aria-hidden="true">
+                  <div class="h-2 w-2 rounded-full bg-olive"></div>
+                </div>
+                <span class="mb-1 block font-serif text-4xl font-light text-olive/20">{step.number}</span>
+                <h2 class="mb-2 font-serif text-2xl font-light text-charcoal">{step.title}</h2>
+                <p class="mb-4 text-base leading-relaxed text-charcoal-light">{step.description}</p>
+                <img src={step.image} alt={step.imageAlt} class="aspect-[4/3] w-full object-cover" loading="lazy" />
+              </div>
+
+              {/* ---- DESKTOP ---- */}
+              <div class="hidden md:grid md:grid-cols-2 md:gap-x-16">
+                {isEven ? (
+                  <>
+                    {/* Text LEFT with timeline */}
+                    <div class="relative py-10">
+                      {/* Vertical line segment */}
+                      <div class:list={[
+                        'timeline-line absolute left-[11px] w-px bg-warm-gray',
+                        isFirst ? 'top-[3.25rem]' : 'top-0',
+                        isLast ? 'h-[3.25rem]' : 'bottom-0',
+                      ]} aria-hidden="true"></div>
+                      {/* Circle node */}
+                      <div class="timeline-circle absolute left-0 top-10 z-10 flex h-6 w-6 items-center justify-center rounded-full border-2 border-olive bg-cream" aria-hidden="true">
+                        <div class="h-2 w-2 rounded-full bg-olive"></div>
+                      </div>
+                      {/* Content */}
+                      <div class="pl-10">
+                        <span class="mb-2 block font-serif text-7xl font-light text-olive/15">{step.number}</span>
+                        <h2 class="mb-3 font-serif text-4xl font-light text-charcoal">{step.title}</h2>
+                        <p class="text-lg leading-relaxed text-charcoal-light">{step.description}</p>
+                      </div>
+                    </div>
+                    {/* Image RIGHT */}
+                    <div>
+                      <img src={step.image} alt={step.imageAlt} class="aspect-[4/3] w-full object-cover" loading="lazy" />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Image LEFT */}
+                    <div>
+                      <img src={step.image} alt={step.imageAlt} class="aspect-[4/3] w-full object-cover" loading="lazy" />
+                    </div>
+                    {/* Text RIGHT with timeline */}
+                    <div class="relative py-10">
+                      <div class:list={[
+                        'timeline-line absolute left-[11px] w-px bg-warm-gray',
+                        'top-0',
+                        isLast ? 'h-[3.25rem]' : 'bottom-0',
+                      ]} aria-hidden="true"></div>
+                      <div class="timeline-circle absolute left-0 top-10 z-10 flex h-6 w-6 items-center justify-center rounded-full border-2 border-olive bg-cream" aria-hidden="true">
+                        <div class="h-2 w-2 rounded-full bg-olive"></div>
+                      </div>
+                      <div class="pl-10">
+                        <span class="mb-2 block font-serif text-7xl font-light text-olive/15">{step.number}</span>
+                        <h2 class="mb-3 font-serif text-4xl font-light text-charcoal">{step.title}</h2>
+                        <p class="text-lg leading-relaxed text-charcoal-light">{step.description}</p>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* ---- ZIGZAG CONNECTOR between steps (desktop only) ---- */}
+            {!isLast && (
+              <div class="zigzag-connector hidden md:block" data-connector={i}>
+                <div class="relative h-16">
+                  {isEven ? (
+                    <>
+                      <div class="timeline-line absolute left-[11px] top-0 h-1/2 w-px bg-warm-gray" aria-hidden="true"></div>
+                      <div class="timeline-line absolute h-px bg-warm-gray" style="left: 11px; right: calc(50% - 2rem - 11px); top: 50%;" aria-hidden="true"></div>
+                      <div class="timeline-line absolute top-1/2 bottom-0 w-px bg-warm-gray" style="left: calc(50% + 2rem + 11px);" aria-hidden="true"></div>
+                    </>
+                  ) : (
+                    <>
+                      <div class="timeline-line absolute top-0 h-1/2 w-px bg-warm-gray" style="left: calc(50% + 2rem + 11px);" aria-hidden="true"></div>
+                      <div class="timeline-line absolute h-px bg-warm-gray" style="left: 11px; right: calc(50% - 2rem - 11px); top: 50%;" aria-hidden="true"></div>
+                      <div class="timeline-line absolute left-[11px] top-1/2 bottom-0 w-px bg-warm-gray" aria-hidden="true"></div>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
+        );
+      })}
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="bg-olive px-6 py-20 md:px-12 md:py-28">
+    <div class="mx-auto max-w-3xl text-center">
+      <h2 class="mb-4 font-serif text-4xl font-light text-white md:text-5xl">
+        Ready to Start?
+      </h2>
+      <p class="mb-8 text-lg text-white/80">
+        The first step is a conversation. Let's talk about your space.
+      </p>
+      <a
+        href="/contact"
+        class="inline-block border-2 border-white px-8 py-3.5 text-xs font-sans font-medium uppercase tracking-[0.2em] text-white transition-all hover:bg-white hover:text-olive"
+      >
+        Book a Consultation
+      </a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .timeline-circle {
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .timeline-line {
+    transition: background-color 0.6s ease;
+  }
+  .process-step.is-active .timeline-circle {
+    transform: scale(1.4);
+  }
+  .process-step.is-active .timeline-line {
+    background-color: #5f6961;
+  }
+  /* Darken connector lines when the step ABOVE is active */
+  .zigzag-connector.is-active .timeline-line {
+    background-color: #5f6961;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .timeline-circle,
+    .timeline-line {
+      transition: none !important;
+    }
+  }
+</style>
+
+<script>
+  const steps = document.querySelectorAll('.process-step');
+  const connectors = document.querySelectorAll('.zigzag-connector');
+
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const el = entry.target as HTMLElement;
+
+          if (entry.isIntersecting) {
+            el.classList.add('is-active');
+
+            // Also activate the connector immediately ABOVE this step
+            const stepIndex = el.dataset.step;
+            if (stepIndex && parseInt(stepIndex) > 0) {
+              connectors[parseInt(stepIndex) - 1]?.classList.add('is-active');
+            }
+          } else {
+            el.classList.remove('is-active');
+
+            const stepIndex = el.dataset.step;
+            if (stepIndex && parseInt(stepIndex) > 0) {
+              connectors[parseInt(stepIndex) - 1]?.classList.remove('is-active');
+            }
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    steps.forEach((step) => observer.observe(step));
+  }
+</script>

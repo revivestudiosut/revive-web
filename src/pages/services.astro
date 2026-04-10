@@ -28,28 +28,6 @@ const services = [
   },
 ];
 
-const process = [
-  {
-    number: '01',
-    title: 'Discovery & Consultation',
-    description: 'We begin by understanding your vision, lifestyle, and functional needs through in-depth conversations and site analysis.',
-  },
-  {
-    number: '02',
-    title: 'Concept Development',
-    description: 'Our team creates mood boards, color palettes, and preliminary layouts that capture your desired aesthetic.',
-  },
-  {
-    number: '03',
-    title: 'Design Refinement',
-    description: 'We refine the concept with detailed drawings, material selections, and 3D visualizations for your approval.',
-  },
-  {
-    number: '04',
-    title: 'Implementation',
-    description: 'From procurement to installation, we manage every detail to bring your vision to life seamlessly.',
-  },
-];
 ---
 
 <BaseLayout title="Services — Revive Studios">
@@ -96,38 +74,6 @@ const process = [
           </div>
         </div>
       ))}
-    </div>
-  </section>
-
-  <!-- Design Process -->
-  <section class="bg-cream-dark px-6 py-20 md:px-12 md:py-28">
-    <div class="mx-auto max-w-7xl">
-      <div class="mb-16">
-        <h2 class="mb-4 font-serif text-4xl font-light text-charcoal md:text-5xl">
-          Our Design Process
-        </h2>
-        <p class="max-w-2xl text-charcoal-light leading-relaxed">
-          Every project begins with understanding your vision. We collaborate
-          closely with you through consultation, concept development, design
-          refinement, and implementation to ensure your space exceeds
-          expectations.
-        </p>
-      </div>
-      <div class="grid gap-12 md:grid-cols-4 md:gap-8">
-        {process.map((step) => (
-          <div>
-            <span class="mb-4 block font-serif text-5xl font-light text-olive/30">
-              {step.number}
-            </span>
-            <h3 class="mb-3 font-serif text-xl font-light text-charcoal">
-              {step.title}
-            </h3>
-            <p class="text-sm leading-relaxed text-charcoal-light">
-              {step.description}
-            </p>
-          </div>
-        ))}
-      </div>
     </div>
   </section>
 
