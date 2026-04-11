@@ -168,6 +168,59 @@ const steps = [
     </div>
   </section>
 
+  <!-- FAQ -->
+  <section class="bg-cream-dark px-6 py-20 md:px-12 md:py-28">
+    <div class="mx-auto max-w-3xl">
+      <h2 class="mb-12 text-center font-serif text-4xl font-light text-charcoal md:text-5xl">
+        Frequently Asked Questions
+      </h2>
+      <div class="divide-y divide-warm-gray">
+        <details class="group py-6" open>
+          <summary class="flex cursor-pointer items-start justify-between gap-4 text-lg font-medium text-charcoal">
+            <span class="font-serif text-xl font-light">Do I need to hire a general contractor before reaching out to you?</span>
+            <span class="mt-1 flex-shrink-0 text-olive transition-transform group-open:rotate-45">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                <line x1="10" y1="4" x2="10" y2="16"></line>
+                <line x1="4" y1="10" x2="16" y2="10"></line>
+              </svg>
+            </span>
+          </summary>
+          <p class="mt-4 text-base leading-relaxed text-charcoal-light">
+            Not at all. We're always happy to collaborate with a general contractor you've already selected. We also maintain strong relationships with a network of trusted contractors we can recommend based on the scope and location of your project — so if you haven't found one yet, we can help point you in the right direction.
+          </p>
+        </details>
+        <details class="group py-6">
+          <summary class="flex cursor-pointer items-start justify-between gap-4 text-lg font-medium text-charcoal">
+            <span class="font-serif text-xl font-light">Do I even need a general contractor? Can you handle that side of things?</span>
+            <span class="mt-1 flex-shrink-0 text-olive transition-transform group-open:rotate-45">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                <line x1="10" y1="4" x2="10" y2="16"></line>
+                <line x1="4" y1="10" x2="16" y2="10"></line>
+              </svg>
+            </span>
+          </summary>
+          <p class="mt-4 text-base leading-relaxed text-charcoal-light">
+            A great general contractor is one of the most valuable investments you can make in any construction project — and we mean that. They protect your budget (and save you money!), uphold finish quality, and significantly reduce the stress that comes with managing a complex build. We strongly encourage all of our clients to hire a general contractor for any project involving more than one trade or any structural changes. We're happy to help you find the right one.
+          </p>
+        </details>
+        <details class="group py-6">
+          <summary class="flex cursor-pointer items-start justify-between gap-4 text-lg font-medium text-charcoal">
+            <span class="font-serif text-xl font-light">How long will my project take, and is it possible to expedite the timeline?</span>
+            <span class="mt-1 flex-shrink-0 text-olive transition-transform group-open:rotate-45">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                <line x1="10" y1="4" x2="10" y2="16"></line>
+                <line x1="4" y1="10" x2="16" y2="10"></line>
+              </svg>
+            </span>
+          </summary>
+          <p class="mt-4 text-base leading-relaxed text-charcoal-light">
+            We like to say it simply: you can have a project done quickly, or you can have it done well and on budget — but rarely both. A thoughtfully designed and well-executed construction project takes time. There are many moving parts, multiple subcontractors to coordinate, and decisions that simply can't be rushed without consequences. A skilled contractor and designer will keep your project on track, but pushing beyond a reasonable timeline almost always leads to added costs, missed deadlines, and compromised results. Our goal is always to deliver something you'll be proud of — and that's worth doing right.
+          </p>
+        </details>
+      </div>
+    </div>
+  </section>
+
   <!-- CTA -->
   <section class="bg-olive px-6 py-20 md:px-12 md:py-28">
     <div class="mx-auto max-w-3xl text-center">
@@ -188,6 +241,15 @@ const steps = [
 </BaseLayout>
 
 <style>
+  details summary::-webkit-details-marker,
+  details summary::marker {
+    display: none;
+    content: '';
+  }
+  details summary {
+    list-style: none;
+  }
+
   .timeline-circle {
     transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
