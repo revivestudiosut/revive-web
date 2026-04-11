@@ -11,3 +11,4 @@ __pycache__/
 .env.staging
 .env.production
 .dev.vars
+.playwright-cli
