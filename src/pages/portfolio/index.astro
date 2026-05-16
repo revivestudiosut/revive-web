@@ -5,7 +5,15 @@ import JournalCard from '../../components/JournalCard.astro';
 
 const projects = await getCollection('projects');
 const featured = projects.find((p) => p.data.featured) || projects[0];
-const otherProjects = projects.filter((p) => p.id !== featured.id);
+
+const nonFeatured = projects.filter((p) => p.id !== featured.id);
+const sortedByRecency = [...nonFeatured].sort((a, b) => {
+  const aDate = a.data.completedAt?.valueOf() ?? 0;
+  const bDate = b.data.completedAt?.valueOf() ?? 0;
+  if (aDate !== bDate) return bDate - aDate;
+  return a.id.localeCompare(b.id);
+});
+const recentProjects = sortedByRecency.slice(0, 3);
 
 const journalPosts = (await getCollection('journal')).sort(
   (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf(),
@@ -60,43 +68,66 @@ const recentJournal = journalPosts.slice(0, 3);
     </div>
   </section>
 
-  <!-- All Projects Grid -->
-  <section class="bg-cream-dark px-6 py-20 md:px-12 md:py-28">
-    <div class="mx-auto max-w-7xl">
-      <h2 class="mb-12 font-serif text-3xl font-light text-charcoal md:text-4xl">
-        All Projects
-      </h2>
-      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {otherProjects.map((project) => (
-          <a href={`/portfolio/${project.id}`} class="group block">
-            <div class="relative overflow-hidden">
-              <div class="aspect-[4/3]">
-                <img
-                  src={project.data.hero}
-                  alt={project.data.title}
-                  class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  loading="lazy"
-                />
-              </div>
-              <div class="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100">
-                <div class="p-6">
-                  <span class="border-b border-white/50 pb-0.5 text-xs font-sans font-medium uppercase tracking-[0.15em] text-white">
-                    View Project
-                  </span>
+  <!-- Recent Projects -->
+  {recentProjects.length > 0 && (
+    <section class="bg-cream-dark px-6 py-20 md:px-12 md:py-28">
+      <div class="mx-auto max-w-7xl">
+        <div class="mb-12 flex items-end justify-between gap-6">
+          <div>
+            <p class="mb-3 text-xs font-sans font-medium uppercase tracking-[0.15em] text-olive">
+              What's Happening Now
+            </p>
+            <h2 class="font-serif text-3xl font-light text-charcoal md:text-4xl">
+              Recent Projects
+            </h2>
+          </div>
+          <a
+            href="/portfolio/all"
+            class="hidden text-xs font-sans font-medium uppercase tracking-[0.15em] text-charcoal transition-colors hover:text-olive sm:inline-block"
+          >
+            View All Projects &rarr;
+          </a>
+        </div>
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {recentProjects.map((project) => (
+            <a href={`/portfolio/${project.id}`} class="group block">
+              <div class="relative overflow-hidden">
+                <div class="aspect-[4/3]">
+                  <img
+                    src={project.data.hero}
+                    alt={project.data.title}
+                    class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                </div>
+                <div class="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+                  <div class="p-6">
+                    <span class="border-b border-white/50 pb-0.5 text-xs font-sans font-medium uppercase tracking-[0.15em] text-white">
+                      View Project
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="mt-4">
-              <h3 class="font-serif text-xl font-light text-charcoal">
-                {project.data.title}
-              </h3>
-              <p class="text-sm text-charcoal-light">{project.data.location}</p>
-            </div>
+              <div class="mt-4">
+                <h3 class="font-serif text-xl font-light text-charcoal">
+                  {project.data.title}
+                </h3>
+                <p class="text-sm text-charcoal-light">{project.data.location}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+        <div class="mt-12 text-center sm:hidden">
+          <a
+            href="/portfolio/all"
+            class="text-xs font-sans font-medium uppercase tracking-[0.15em] text-charcoal transition-colors hover:text-olive"
+          >
+            View All Projects &rarr;
           </a>
-        ))}
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  )}
 
   <!-- From the Journal -->
   {recentJournal.length > 0 && (

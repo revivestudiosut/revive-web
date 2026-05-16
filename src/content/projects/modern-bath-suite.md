@@ -11,6 +11,7 @@ gallery:
   - /images/modern-bath-powder-art.jpg
   - /images/modern-bath-faucet-walnut.jpg
   - /images/modern-bath-view.jpg
+completedAt: 2026-04-20
 ---
 
 The main bath leans toward daylight. Soft blue subway tile, twin brass-framed mirrors with rounded corners, and warm walnut cabinetry pull morning sun deep into the room, while three-globe brass sconces float over each vanity for the evenings. Twin under-mount basins and brass single-handle faucets keep the counter uncluttered — a quiet, working space first, a beautiful one second.

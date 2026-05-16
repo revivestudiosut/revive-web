@@ -7,6 +7,7 @@ gallery:
   - /images/elegant-kitchen-hero.jpg
   - /images/elegant-kitchen-sink.jpg
 featured: true
+completedAt: 2026-05-10
 ---
 
 A blackened-steel arched range hood is the visual gravity of this room, framed by handmade subway tile in a soft slate blue and grounded by floor-to-ceiling shaker cabinetry in a warm white. Two brass lantern pendants hang over the island in pairs, picking up the satin brass coil faucets, the cabinet pulls, and the warm tones of caned barstools pulled up to the counter. Every metal element softens the white — the room never reads clinical.

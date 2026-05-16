@@ -40,7 +40,8 @@ Ask the employee these questions one at a time (or all at once if they prefer). 
 3. **Short description** — 1–3 sentences for the portfolio card and project page intro
 4. **Hero image** — the main photo for the project (filename or path)
 5. **Gallery images** — additional photos to show on the project page (list of filenames; can be empty if it's just the hero)
-6. **Featured?** — should this project be the big featured banner at the top of `/portfolio`? Default: **no** (only one project should be featured at a time; if they say yes, ask if you should un-feature the current featured project)
+6. **Completion date** — when was the project finished? Use today's date if it just wrapped. Set `completedAt` in `YYYY-MM-DD` format. **This drives the "Recent Projects" section on `/portfolio`** — projects without a date sink to the bottom, so always set this for new work.
+7. **Featured?** — should this project be the big featured banner at the top of `/portfolio`? Default: **no** (only one project should be featured at a time; if they say yes, ask if you should un-feature the current featured project)
 
 ### Image handling
 
@@ -76,17 +77,22 @@ hero: /images/<hero-filename>
 gallery:
   - /images/<hero-filename>
   - /images/<gallery-1-filename>
+completedAt: <YYYY-MM-DD>
 featured: false
 ---
+
+<Optional longer narrative — case study, materials story, design notes.
+Renders below the description on the project detail page. Use ## for
+section headings; supports the same markdown as journal posts.>
 ```
 
-If the employee wants to add a longer narrative (full case study, materials list, etc.), put it as markdown content **below** the closing `---`. This body is optional and currently unused by the project page template — flag this if they ask, and offer to add a body-rendering section to `src/pages/portfolio/[slug].astro` if they want it.
+The body (everything below the closing `---`) is rendered on the project detail page, styled with the same `.prose-journal` classes used for journal posts. It's optional but a great place for a 2–3 paragraph design story.
 
 Notes on the schema (see `src/content.config.ts`):
 - `title`, `location`, `description`, `hero` are **required**
 - `gallery` defaults to empty; include the hero in the gallery list so it appears on the detail page
-- `featured` defaults to `false`
-- `completedAt` is optional (e.g. `2025-08-01`); useful if you want to sort projects by date later
+- `featured` defaults to `false` — only one project should be featured at a time
+- `completedAt` is optional but **strongly recommended** — drives the "Recent Projects" section on `/portfolio`
 
 ## Step 3 — Journal post flow
 
