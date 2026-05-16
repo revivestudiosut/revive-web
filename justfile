@@ -21,8 +21,16 @@ deploy-dev: build
 deploy-staging: build
     npx wrangler pages deploy dist --project-name revive-web --branch staging
 
-deploy-production: build
+deploy-production:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    npm version patch --no-git-tag-version
+    VERSION=$(node -p "require('./package.json').version")
+    jj commit -m "release v$VERSION"
+    git tag "v$VERSION"
+    npm run build
     npx wrangler pages deploy dist --project-name revive-web --branch main
+    echo "✓ Released and deployed v$VERSION (tag created locally; push with: git push origin v$VERSION)"
 
 # Cloudflare logs
 logs-preview:
