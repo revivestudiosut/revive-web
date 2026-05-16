@@ -1,5 +1,5 @@
 ---
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import JournalCard from '../../components/JournalCard.astro';
 
@@ -23,6 +23,8 @@ interface Props {
 
 const { project, prev, next } = Astro.props;
 const { title, location, description, gallery } = project.data;
+const { Content } = await render(project);
+const hasBody = (project.body?.trim().length ?? 0) > 0;
 
 const journalPosts = (await getCollection('journal'))
   .filter((post) => post.data.project?.id === project.id)
@@ -48,6 +50,11 @@ const journalPosts = (await getCollection('journal'))
       <p class="max-w-3xl text-lg leading-relaxed text-charcoal-light">
         {description}
       </p>
+      {hasBody && (
+        <div class="prose-journal mt-10 max-w-3xl font-sans text-base leading-relaxed text-charcoal">
+          <Content />
+        </div>
+      )}
     </div>
   </section>
 

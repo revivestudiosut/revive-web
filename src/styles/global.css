@@ -17,3 +17,64 @@
     @apply font-serif;
   }
 }
+
+.prose-journal h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: 1.875rem;
+  line-height: 1.2;
+  color: #2c2c2c;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+}
+.prose-journal h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+  font-size: 1.5rem;
+  color: #2c2c2c;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+.prose-journal p {
+  margin-bottom: 1.25rem;
+}
+.prose-journal ul,
+.prose-journal ol {
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+}
+.prose-journal ul {
+  list-style-type: disc;
+}
+.prose-journal ol {
+  list-style-type: decimal;
+}
+.prose-journal li {
+  margin-bottom: 0.5rem;
+}
+.prose-journal a {
+  color: #5f6961;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: color 0.2s;
+}
+.prose-journal a:hover {
+  color: #4a534c;
+}
+.prose-journal strong {
+  font-weight: 500;
+  color: #2c2c2c;
+}
+.prose-journal blockquote {
+  border-left: 2px solid #5f6961;
+  padding-left: 1.5rem;
+  margin: 2rem 0;
+  font-style: italic;
+  color: #6b6b6b;
+}
+.prose-journal img {
+  margin: 2rem 0;
+  width: 100%;
+  height: auto;
+}
