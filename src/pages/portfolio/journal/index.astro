@@ -1,0 +1,61 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import JournalCard from '../../../components/JournalCard.astro';
+
+const posts = (await getCollection('journal')).sort(
+  (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf(),
+);
+---
+
+<BaseLayout title="Journal — Revive Studios">
+  <!-- Page Header -->
+  <section class="px-6 pb-12 pt-28 md:px-12 md:pb-16 md:pt-36">
+    <div class="mx-auto max-w-7xl">
+      <a
+        href="/portfolio"
+        class="mb-8 inline-flex items-center gap-2 text-sm text-charcoal-light transition-colors hover:text-olive"
+      >
+        <span>&larr;</span> Back to Portfolio
+      </a>
+      <h1 class="mb-6 font-serif text-5xl font-light text-charcoal md:text-6xl">
+        Journal
+      </h1>
+      <p class="max-w-2xl text-lg text-charcoal-light">
+        Stories from our projects, techniques we keep coming back to, and notes
+        on the materials and decisions that shape a thoughtful home.
+      </p>
+    </div>
+  </section>
+
+  <!-- All Posts -->
+  <section class="px-6 pb-20 md:px-12 md:pb-28">
+    <div class="mx-auto max-w-7xl">
+      {posts.length === 0 ? (
+        <p class="text-charcoal-light">No journal entries yet — check back soon.</p>
+      ) : (
+        <div class="grid gap-12 sm:grid-cols-2 lg:grid-cols-3">
+          {posts.map((post) => <JournalCard post={post} />)}
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="bg-olive px-6 py-20 md:px-12 md:py-28">
+    <div class="mx-auto max-w-3xl text-center">
+      <h2 class="mb-4 font-serif text-4xl font-light text-white md:text-5xl">
+        Ready to Start Your Project?
+      </h2>
+      <p class="mb-8 text-lg text-white/80">
+        Let's create something beautiful for your home.
+      </p>
+      <a
+        href="/contact"
+        class="inline-block border-2 border-white px-8 py-3.5 text-xs font-sans font-medium uppercase tracking-[0.2em] text-white transition-all hover:bg-white hover:text-olive"
+      >
+        Book a Consultation
+      </a>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,24 +1,35 @@
 ---
+import { getCollection, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { projects, getAdjacentProjects } from '../../data/projects';
-import type { Project } from '../../data/projects';
+import JournalCard from '../../components/JournalCard.astro';
 
-export function getStaticPaths() {
-  return projects.map((project) => ({
-    params: { slug: project.slug },
-    props: { project },
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((project, index) => ({
+    params: { slug: project.id },
+    props: {
+      project,
+      prev: index > 0 ? projects[index - 1] : undefined,
+      next: index < projects.length - 1 ? projects[index + 1] : undefined,
+    },
   }));
 }
 
 interface Props {
-  project: Project;
+  project: CollectionEntry<'projects'>;
+  prev?: CollectionEntry<'projects'>;
+  next?: CollectionEntry<'projects'>;
 }
 
-const { project } = Astro.props;
-const { prev, next } = getAdjacentProjects(project.slug);
+const { project, prev, next } = Astro.props;
+const { title, location, description, gallery } = project.data;
+
+const journalPosts = (await getCollection('journal'))
+  .filter((post) => post.data.project?.id === project.id)
+  .sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf());
 ---
 
-<BaseLayout title={`${project.title} — Revive Studios`}>
+<BaseLayout title={`${title} — Revive Studios`}>
   <!-- Back Link + Header -->
   <section class="px-6 pb-8 pt-28 md:px-12 md:pb-12 md:pt-36">
     <div class="mx-auto max-w-7xl">
@@ -29,13 +40,13 @@ const { prev, next } = getAdjacentProjects(project.slug);
         <span>&larr;</span> Back to Portfolio
       </a>
       <h1 class="mb-3 font-serif text-4xl font-light text-charcoal md:text-5xl lg:text-6xl">
-        {project.title}
+        {title}
       </h1>
       <p class="mb-6 text-sm uppercase tracking-[0.1em] text-olive">
-        {project.location}
+        {location}
       </p>
       <p class="max-w-3xl text-lg leading-relaxed text-charcoal-light">
-        {project.description}
+        {description}
       </p>
     </div>
   </section>
@@ -43,11 +54,11 @@ const { prev, next } = getAdjacentProjects(project.slug);
   <!-- Photo Gallery -->
   <section class="px-6 pb-20 md:px-12 md:pb-28">
     <div class="mx-auto max-w-7xl space-y-4">
-      {project.images.map((image, i) => (
+      {gallery.map((image, i) => (
         <div class="overflow-hidden">
           <img
             src={image}
-            alt={`${project.title} — Photo ${i + 1}`}
+            alt={`${title} — Photo ${i + 1}`}
             class="h-auto w-full object-cover"
             loading={i === 0 ? 'eager' : 'lazy'}
           />
@@ -56,27 +67,46 @@ const { prev, next } = getAdjacentProjects(project.slug);
     </div>
   </section>
 
+  <!-- From the Journal (project-linked posts) -->
+  {journalPosts.length > 0 && (
+    <section class="bg-cream-dark px-6 py-20 md:px-12 md:py-28">
+      <div class="mx-auto max-w-7xl">
+        <div class="mb-12">
+          <p class="mb-3 text-xs font-sans font-medium uppercase tracking-[0.15em] text-olive">
+            From the Journal
+          </p>
+          <h2 class="font-serif text-3xl font-light text-charcoal md:text-4xl">
+            Behind the {title}
+          </h2>
+        </div>
+        <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {journalPosts.map((post) => <JournalCard post={post} />)}
+        </div>
+      </div>
+    </section>
+  )}
+
   <!-- Prev / Next Navigation -->
   {(prev || next) && (
     <section class="border-t border-warm-gray px-6 py-16 md:px-12">
       <div class="mx-auto flex max-w-7xl items-stretch justify-between gap-8">
         {prev ? (
-          <a href={`/portfolio/${prev.slug}`} class="group flex-1">
+          <a href={`/portfolio/${prev.id}`} class="group flex-1">
             <p class="mb-2 text-xs font-sans font-medium uppercase tracking-[0.15em] text-charcoal-light">
               Previous Project
             </p>
             <p class="font-serif text-xl font-light text-charcoal transition-colors group-hover:text-olive md:text-2xl">
-              {prev.title}
+              {prev.data.title}
             </p>
           </a>
         ) : <div class="flex-1" />}
         {next ? (
-          <a href={`/portfolio/${next.slug}`} class="group flex-1 text-right">
+          <a href={`/portfolio/${next.id}`} class="group flex-1 text-right">
             <p class="mb-2 text-xs font-sans font-medium uppercase tracking-[0.15em] text-charcoal-light">
               Next Project
             </p>
             <p class="font-serif text-xl font-light text-charcoal transition-colors group-hover:text-olive md:text-2xl">
-              {next.title}
+              {next.data.title}
             </p>
           </a>
         ) : <div class="flex-1" />}

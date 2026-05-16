@@ -1,0 +1,41 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  post: CollectionEntry<'journal'>;
+}
+
+const { post } = Astro.props;
+const { title, description, hero, publishedAt } = post.data;
+
+const formattedDate = publishedAt.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+---
+
+<a href={`/portfolio/journal/${post.id}`} class="group block">
+  {hero && (
+    <div class="relative overflow-hidden">
+      <div class="aspect-[4/3]">
+        <img
+          src={hero}
+          alt={title}
+          class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+          loading="lazy"
+        />
+      </div>
+    </div>
+  )}
+  <div class="mt-4">
+    <p class="mb-1 text-xs font-sans font-medium uppercase tracking-[0.15em] text-charcoal-light">
+      {formattedDate}
+    </p>
+    <h3 class="mb-2 font-serif text-xl font-light text-charcoal transition-colors group-hover:text-olive">
+      {title}
+    </h3>
+    <p class="text-sm leading-relaxed text-charcoal-light">{description}</p>
+  </div>
+</a>

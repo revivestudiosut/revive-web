@@ -1,0 +1,193 @@
+---
+import { getCollection, getEntry, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('journal');
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: CollectionEntry<'journal'>;
+}
+
+const { post } = Astro.props;
+const { title, description, hero, publishedAt, project: projectRef, tags } = post.data;
+const { Content } = await render(post);
+
+const linkedProject = projectRef ? await getEntry(projectRef) : undefined;
+
+const formattedDate = publishedAt.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+---
+
+<BaseLayout title={`${title} — Revive Studios`} description={description}>
+  <!-- Back Link + Header -->
+  <section class="px-6 pb-8 pt-28 md:px-12 md:pb-12 md:pt-36">
+    <div class="mx-auto max-w-3xl">
+      <a
+        href="/portfolio/journal"
+        class="mb-8 inline-flex items-center gap-2 text-sm text-charcoal-light transition-colors hover:text-olive"
+      >
+        <span>&larr;</span> Back to Journal
+      </a>
+      <p class="mb-4 text-xs font-sans font-medium uppercase tracking-[0.15em] text-olive">
+        {formattedDate}
+      </p>
+      <h1 class="mb-6 font-serif text-4xl font-light text-charcoal md:text-5xl lg:text-6xl">
+        {title}
+      </h1>
+      <p class="text-lg leading-relaxed text-charcoal-light">
+        {description}
+      </p>
+    </div>
+  </section>
+
+  <!-- Hero Image -->
+  {hero && (
+    <section class="px-6 pb-12 md:px-12 md:pb-16">
+      <div class="mx-auto max-w-5xl">
+        <div class="overflow-hidden">
+          <img
+            src={hero}
+            alt={title}
+            class="h-auto w-full object-cover"
+            loading="eager"
+          />
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Body -->
+  <article class="px-6 pb-12 md:px-12 md:pb-16">
+    <div class="prose-journal mx-auto max-w-3xl font-sans text-base leading-relaxed text-charcoal">
+      <Content />
+    </div>
+  </article>
+
+  <!-- Linked Project Backlink -->
+  {linkedProject && (
+    <section class="px-6 pb-20 md:px-12 md:pb-28">
+      <div class="mx-auto max-w-3xl">
+        <a
+          href={`/portfolio/${linkedProject.id}`}
+          class="group block border border-warm-gray bg-cream-dark p-8 transition-colors hover:border-olive"
+        >
+          <p class="mb-2 text-xs font-sans font-medium uppercase tracking-[0.15em] text-charcoal-light">
+            Part of the Project
+          </p>
+          <p class="font-serif text-2xl font-light text-charcoal transition-colors group-hover:text-olive">
+            {linkedProject.data.title}
+          </p>
+          <p class="mt-1 text-sm text-charcoal-light">
+            {linkedProject.data.location}
+          </p>
+        </a>
+      </div>
+    </section>
+  )}
+
+  <!-- Tags -->
+  {tags.length > 0 && (
+    <section class="px-6 pb-20 md:px-12 md:pb-28">
+      <div class="mx-auto max-w-3xl">
+        <div class="flex flex-wrap gap-2">
+          {tags.map((tag) => (
+            <span class="border border-warm-gray px-3 py-1 text-xs font-sans uppercase tracking-[0.1em] text-charcoal-light">
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- CTA -->
+  <section class="bg-olive px-6 py-20 md:px-12 md:py-28">
+    <div class="mx-auto max-w-3xl text-center">
+      <h2 class="mb-4 font-serif text-4xl font-light text-white md:text-5xl">
+        Ready to Start Your Project?
+      </h2>
+      <p class="mb-8 text-lg text-white/80">
+        Let's create something beautiful for your home.
+      </p>
+      <a
+        href="/contact"
+        class="inline-block border-2 border-white px-8 py-3.5 text-xs font-sans font-medium uppercase tracking-[0.2em] text-white transition-all hover:bg-white hover:text-olive"
+      >
+        Book a Consultation
+      </a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style is:global>
+  .prose-journal h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: 1.875rem;
+    line-height: 1.2;
+    color: #2c2c2c;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+  }
+  .prose-journal h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: 1.5rem;
+    color: #2c2c2c;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  .prose-journal p {
+    margin-bottom: 1.25rem;
+  }
+  .prose-journal ul,
+  .prose-journal ol {
+    margin-bottom: 1.25rem;
+    padding-left: 1.5rem;
+  }
+  .prose-journal ul {
+    list-style-type: disc;
+  }
+  .prose-journal ol {
+    list-style-type: decimal;
+  }
+  .prose-journal li {
+    margin-bottom: 0.5rem;
+  }
+  .prose-journal a {
+    color: #5f6961;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    transition: color 0.2s;
+  }
+  .prose-journal a:hover {
+    color: #4a534c;
+  }
+  .prose-journal strong {
+    font-weight: 500;
+    color: #2c2c2c;
+  }
+  .prose-journal blockquote {
+    border-left: 2px solid #5f6961;
+    padding-left: 1.5rem;
+    margin: 2rem 0;
+    font-style: italic;
+    color: #6b6b6b;
+  }
+  .prose-journal img {
+    margin: 2rem 0;
+    width: 100%;
+    height: auto;
+  }
+</style>
