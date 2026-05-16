@@ -18,6 +18,10 @@ export default {
           DEFAULT: '#2c2c2c',
           light: '#6b6b6b',
         },
+        mauve: {
+          DEFAULT: '#84675a',
+          light: '#bb9c87',
+        },
       },
       fontFamily: {
         serif: ['Cormorant Garamond', 'Cormorant', 'serif'],
