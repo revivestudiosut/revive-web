@@ -42,7 +42,7 @@ const recentJournal = journalPosts.slice(0, 3);
   <section class="px-6 pb-20 md:px-12 md:pb-28">
     <div class="mx-auto max-w-7xl">
       <a href={`/portfolio/${featured.id}`} class="group block">
-        <div class="relative overflow-hidden">
+        <div class="overflow-hidden">
           <div class="aspect-[16/9] md:aspect-[21/9]">
             <img
               src={featured.data.hero}
@@ -50,24 +50,23 @@ const recentJournal = journalPosts.slice(0, 3);
               class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
           </div>
-          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-          <div class="absolute bottom-0 left-0 p-8 md:p-12">
-            <p class="mb-2 text-xs font-sans font-medium uppercase tracking-[0.15em] text-white/70">
-              Featured Project
+        </div>
+        <div class="mt-6">
+          <p class="mb-2 text-xs font-sans font-medium uppercase tracking-[0.15em] text-olive">
+            Featured Project
+          </p>
+          <h2 class="mb-2 font-serif text-3xl font-light text-charcoal md:text-4xl">
+            {featured.data.title}
+          </h2>
+          <p class="mb-4 text-sm text-charcoal-light">{featured.data.location}</p>
+          {featured.data.description && (
+            <p class="max-w-xl text-sm leading-relaxed text-charcoal-light md:text-base">
+              {featured.data.description}
             </p>
-            <h2 class="mb-2 font-serif text-3xl font-light text-white md:text-4xl">
-              {featured.data.title}
-            </h2>
-            <p class="mb-4 text-sm text-white/70">{featured.data.location}</p>
-            {featured.data.description && (
-              <p class="max-w-xl text-sm leading-relaxed text-white/80 md:text-base">
-                {featured.data.description}
-              </p>
-            )}
-            <span class="mt-6 inline-block border-b border-white/50 pb-0.5 text-xs font-sans font-medium uppercase tracking-[0.15em] text-white transition-colors group-hover:border-white">
-              View Project
-            </span>
-          </div>
+          )}
+          <span class="mt-6 inline-block border-b border-charcoal/30 pb-0.5 text-xs font-sans font-medium uppercase tracking-[0.15em] text-charcoal transition-colors group-hover:border-charcoal">
+            View Project
+          </span>
         </div>
       </a>
     </div>
