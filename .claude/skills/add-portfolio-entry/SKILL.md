@@ -50,6 +50,32 @@ Ask the employee these questions one at a time (or all at once if they prefer). 
 - Use lowercase, hyphenated filenames (e.g. `henderson-bathroom.jpg`, not `Henderson Bathroom.JPG`).
 - In frontmatter, reference images as `/images/<filename>` (the leading slash is important).
 
+### Sourcing images from Google Photos albums
+
+Project photos often arrive as a Google Sheet with one row per project — **title | album link | main-photo link** — where the links are Google Photos shares (`https://photos.app.goo.gl/...`). These are **not** Google Drive files; fetch them with `curl` (Drive tools won't work).
+
+For each link:
+
+1. **Download the share page** — the short link redirects to a `photos.google.com/share/...` page (~1 MB of HTML):
+   ```bash
+   curl -sL "https://photos.app.goo.gl/XXXX" -o album.html
+   ```
+
+2. **Extract the photo URLs**, in album order, deduped:
+   ```bash
+   grep -oE 'https://lh3\.googleusercontent\.com/pw/[A-Za-z0-9_-]+' album.html | awk '!seen[$0]++'
+   ```
+   The `/pw/` prefix marks photos; a `/a/...` URL is the album owner's avatar — skip it. A *main-photo* share link contains exactly one `/pw/` URL.
+
+3. **Download each photo** by appending a size suffix to the URL:
+   - `=d` → original (often already ~2048px / under 1 MB)
+   - `=s2048` → cap the longest side to 2048px — use for anything larger so it stays web/mobile-friendly
+   ```bash
+   curl -sL "${url}=s2048" -o "public/images/<descriptive-name>.jpg"
+   ```
+
+4. **Name files + pick the hero.** Open each downloaded image to see what it shows, then rename to lowercase-hyphenated, descriptive names (`ponderosa-kitchen.jpg`, not `IMG_1234.jpg`). The spreadsheet's **main-photo link is the project `hero`** — it's usually byte-identical to one album frame, so don't list it twice in `gallery`.
+
 ### Generating the slug
 
 The slug is the URL piece (`/portfolio/<slug>`). Derive it from the project name:
@@ -148,6 +174,26 @@ Match the existing journal voice — see `src/content/journal/brass-in-the-luxe-
 - Use `## Subheadings` to break up the post
 - Avoid jargon; if you use a designer term, explain it
 - End with a takeaway or invitation, not a hard sell
+
+## Removing or retiring an entry
+
+To take a project or journal post down, delete its markdown file from `src/content/projects/` or `src/content/journal/`. Do two checks first, or you'll break the build or delete an image another page needs:
+
+1. **Journal references.** When deleting a *project*, make sure no journal post points at it via `project: <slug>`. That reference is validated at build time, so a dangling one fails the build. Check, and delete or re-point any matches:
+   ```bash
+   grep -rl "project: <slug>" src/content/journal/
+   ```
+
+2. **Shared images.** Only delete images nothing else uses — some are referenced by pages outside the portfolio (e.g. `services.astro`, `contact.astro`). The safe approach: delete the `.md` first, then delete each candidate image only if nothing in `src/` still references it:
+   ```bash
+   for img in <image-1.jpg> <image-2.jpg>; do
+     grep -rq "$img" src/ && echo "KEEP $img" || rm "public/images/$img"
+   done
+   ```
+
+3. **Featured handoff.** If the entry was the featured project, set `featured: true` on a different project (only one should be featured) — otherwise the `/portfolio` banner falls back to whatever sorts first.
+
+Then run `npm run build` to confirm references still resolve (the page count should drop), and commit. Note: with the site's SPA-style not-found handling, a removed URL serves the homepage with a `200` rather than a `404` — fine for visitors clicking around, but old inbound links won't signal "gone".
 
 ## Step 4 — Preview
 

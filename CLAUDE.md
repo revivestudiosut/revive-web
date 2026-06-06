@@ -105,6 +105,24 @@ The contact form submits via JS to `/api/contact` (a Cloudflare Pages Function).
 3. Worker validates the Turnstile token, then sends email via Resend API
 4. Success/error shown inline on the page
 
+## Deployment
+
+Deploys go through the **justfile** (which wraps `wrangler pages deploy`). There is one Cloudflare Pages project, `revive-web`; the deployment tiers are git *branches* on that project:
+
+| Command | Cloudflare branch | URL |
+|---|---|---|
+| `just deploy-dev` | `dev` | `dev.revive-web.pages.dev` |
+| `just deploy-staging` | `staging` | `staging.revive-web.pages.dev` |
+| `just deploy-production` | `main` (production) | `revivestudiosut.com`, `www.revivestudiosut.com` |
+
+Each target runs `npm run build` first, then deploys `dist/`.
+
+**Cloudflare auth.** `wrangler` needs `CLOUDFLARE_API_TOKEN` (a Pages-scoped token with *Cloudflare Pages: Edit*) and `CLOUDFLARE_ACCOUNT_ID` (`dd7ff2e714fde32812bdc06d12a5a407`). These are **not** part of the app env files, so deploys fail with an authentication error until you set them — add them to `.env.dev` (gitignored, direnv-loaded) or export them in your shell. The token is a secret; never commit it. Note: `wrangler whoami` reports "incorrect permissions" with a Pages-scoped token — that's expected, and the deploy still works because the account ID is supplied directly.
+
+**`just deploy-production` also cuts a release.** Before deploying it patch-bumps `package.json`, makes a `release vX.Y.Z` commit, and creates a `vX.Y.Z` git tag. Consequences:
+- It bumps the version on *every* run — don't run it just to re-publish identical content (for that, run a plain `wrangler pages deploy dist --project-name revive-web --branch main`).
+- Afterward, push the tag yourself: `git push origin vX.Y.Z` (the recipe creates it locally only).
+
 ## Environment Management
 
 Uses **direnv** to auto-load environment variables per deployment tier.
