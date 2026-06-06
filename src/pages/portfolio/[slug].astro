@@ -47,9 +47,11 @@ const journalPosts = (await getCollection('journal'))
       <p class="mb-6 text-sm uppercase tracking-[0.1em] text-olive">
         {location}
       </p>
-      <p class="max-w-3xl text-lg leading-relaxed text-charcoal-light">
-        {description}
-      </p>
+      {description && (
+        <p class="max-w-3xl text-lg leading-relaxed text-charcoal-light">
+          {description}
+        </p>
+      )}
       {hasBody && (
         <div class="prose-journal mt-10 max-w-3xl font-sans text-base leading-relaxed text-charcoal">
           <Content />

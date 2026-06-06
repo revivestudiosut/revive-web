@@ -56,9 +56,11 @@ const recentJournal = journalPosts.slice(0, 3);
               {featured.data.title}
             </h2>
             <p class="mb-4 text-sm text-white/70">{featured.data.location}</p>
-            <p class="max-w-xl text-sm leading-relaxed text-white/80 md:text-base">
-              {featured.data.description}
-            </p>
+            {featured.data.description && (
+              <p class="max-w-xl text-sm leading-relaxed text-white/80 md:text-base">
+                {featured.data.description}
+              </p>
+            )}
             <span class="mt-6 inline-block border-b border-white/50 pb-0.5 text-xs font-sans font-medium uppercase tracking-[0.15em] text-white transition-colors group-hover:border-white">
               View Project
             </span>
