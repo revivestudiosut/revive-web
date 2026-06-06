@@ -6,7 +6,7 @@ hero: /images/elegant-kitchen-hero.jpg
 gallery:
   - /images/elegant-kitchen-hero.jpg
   - /images/elegant-kitchen-sink.jpg
-featured: true
+featured: false
 completedAt: 2026-05-10
 ---
 
