@@ -1,90 +1,97 @@
 # Revive Studios Website
 
-Marketing website for [Revive Studios](https://revivestudiosut.com), an interior design company in Alpine, UT.
+This is the website for [Revive Studios](https://revivestudiosut.com), an interior design company in Alpine, UT.
 
-Built with [Astro 5](https://astro.build) + [Tailwind CSS 3](https://tailwindcss.com). Hosted on [Cloudflare Pages](https://pages.cloudflare.com).
+It is built with [Astro](https://astro.build) and [Tailwind CSS](https://tailwindcss.com) and hosted on [Cloudflare Pages](https://pages.cloudflare.com). You do not need to know what any of that means to make everyday changes. Most edits are done by asking Claude in plain English.
 
-## Prerequisites
+## Making changes (the easy way)
 
-- Node.js >= 22.12.0
-- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/) for deployments (`npm install -g wrangler`)
-- Cloudflare account access (authenticate with `wrangler login`)
-- [direnv](https://direnv.net/) for environment management (`brew install direnv`)
+You manage this site by talking to Claude. Describe what you want in normal language and Claude does the technical work: editing the files, optimizing photos, previewing the result, and publishing.
 
-## Getting Started
+Things you can ask for:
 
-```bash
-npm install
-cp .env.example .env.dev       # Fill in your keys
-direnv allow                    # Auto-loads env vars
-npm run dev
-```
+- **Add a portfolio project**: "Add a new project for the Smith kitchen in Draper" and Claude will ask for the photos and details.
+- **Add a journal post**: "Write a journal post about choosing countertops."
+- **Change wording**: "Update the services page so the fee range reads 3 to 5 percent."
+- **Swap a photo**: "Replace the about-page photo of Cassidy with this new one."
+- **Publish**: "Preview my changes, then publish to the live site."
 
-The site runs at http://localhost:4321.
+For adding projects and journal posts there is a built-in guided helper: Claude asks you simple questions (title, location, photos, a short description) and handles all the formatting for you, so you never have to touch a file. Just say something like "add a new project."
 
-## Build
+Claude follows the project guide in [`CLAUDE.md`](./CLAUDE.md), which has the full technical details if you ever want them.
 
-```bash
-npm run build    # Static output to dist/
-npm run preview  # Preview the production build locally
-```
+## Previewing your changes
 
-## Deployment
+Before anything goes live, you can see it on your own computer.
 
-Three environments, deployed via Cloudflare Pages branch aliases:
+- Ask Claude to **start a preview** (it runs `just dev`), then open http://localhost:4321 in your browser.
+- The preview updates automatically as changes are made.
 
-| Environment | Command | URL |
-|-------------|---------|-----|
-| Dev | `npm run deploy:dev` | https://dev.revive-web.pages.dev |
-| Staging | `npm run deploy:staging` | https://staging.revive-web.pages.dev |
-| Production | `npm run deploy:production` | https://revive-web.pages.dev |
+## Publishing the site
 
-**Workflow**: always deploy to dev or staging first. Validate the site, then promote to production.
+There are three versions of the site, and you move changes through them in order so nothing breaks the live site:
 
-```bash
-# Deploy to dev to test changes
-npm run deploy:dev
+1. **Dev** (`dev.revive-web.pages.dev`): a private sandbox for trying things out.
+2. **Staging** (`staging.revive-web.pages.dev`): a final review copy.
+3. **Production** (`revivestudiosut.com`): the real, public website.
 
-# Looks good — promote to staging
-npm run deploy:staging
+The normal flow is dev, then staging, then production. Ask Claude to publish and it runs the right command for each step:
 
-# Final validation — ship it
-npm run deploy:production
-```
+| Step | What to ask Claude | Behind the scenes |
+|------|--------------------|-------------------|
+| Try it out | "Publish to dev" | `just deploy-dev` |
+| Review copy | "Publish to staging" | `just deploy-staging` |
+| Go live | "Publish to production" | `just deploy-production` |
 
-Production will also be accessible at `revivestudiosut.com` once the custom domain is configured in Cloudflare Pages.
+**Always test on dev or staging first, then go live.** Publishing to production also records a new version number for the site, so only do it when you actually have changes to release.
 
-## Project Structure
+> Note for whoever runs the commands directly: build and deployment go through the `justfile` recipes, never raw `npm` or `wrangler`. Run `just` to see all available recipes.
+
+## Where things live
 
 ```
 src/
-├── layouts/BaseLayout.astro    # HTML shell, fonts, meta tags
-├── components/
-│   ├── Header.astro            # Olive (#5f6961) sticky nav with white logo
-│   └── Footer.astro            # Dark charcoal footer with contact info
-├── pages/
-│   ├── index.astro             # Homepage
-│   ├── about.astro             # Team bios, company story, design process
-│   ├── services.astro          # Service offerings with photos
-│   ├── portfolio.astro         # Project photo grid
-│   └── contact.astro           # Contact form (Turnstile + JS submit)
-└── styles/global.css           # Tailwind directives + base styles
+├── content/
+│   ├── projects/   # Each portfolio project is one file here
+│   └── journal/    # Each journal post is one file here
+├── pages/          # The main pages: home, about, services, process, contact, portfolio
+├── components/     # Shared pieces: the header, footer, cards
+└── styles/         # Colors and fonts
 
-functions/api/contact.ts        # Cloudflare Pages Function (Turnstile + Resend)
-public/images/                  # All site photography and logos
-tailwind.config.mjs             # Design tokens (colors, fonts)
-astro.config.mjs                # Astro configuration
+public/images/      # All photos and logos
+functions/api/      # The code that powers the contact form
 ```
 
-## Environment Variables
+You usually will not need to open these yourself. Claude knows where everything is.
 
-Environment-specific secrets are managed with direnv and `.env.*` files. See `.env.example` for all required variables.
+## First-time setup (technical)
+
+This part is only needed once, by the person setting up the project on a new computer.
+
+**Prerequisites**
+
+- Node.js >= 22.12.0
+- [direnv](https://direnv.net/) for environment management (`brew install direnv`)
+- Cloudflare account access with a Pages API token (see [`CLAUDE.md`](./CLAUDE.md) for the auth details)
+
+**Setup**
+
+```bash
+just install                 # Install dependencies
+cp .env.example .env.dev     # Then fill in your keys
+direnv allow                 # Auto-loads environment variables
+just dev                     # Start the local preview at http://localhost:4321
+```
+
+**Environment variables**
+
+Secrets are managed with direnv and `.env.*` files. See `.env.example` for the full list.
 
 | Variable | Where used | Secret? |
 |----------|-----------|---------|
 | `PUBLIC_TURNSTILE_SITE_KEY` | Build time (Astro) | No |
-| `TURNSTILE_SECRET_KEY` | Runtime (Pages Function) | Yes |
-| `RESEND_API_KEY` | Runtime (Pages Function) | Yes |
-| `CONTACT_TO_EMAIL` | Runtime (Pages Function) | No |
+| `TURNSTILE_SECRET_KEY` | Runtime (contact form) | Yes |
+| `RESEND_API_KEY` | Runtime (contact form) | Yes |
+| `CONTACT_TO_EMAIL` | Runtime (contact form) | No |
 
-Runtime secrets are set in the Cloudflare dashboard under Workers & Pages → revive-web → Settings → Environment variables.
+Runtime secrets are set in the Cloudflare dashboard under Workers & Pages, then revive-web, then Settings, then Environment variables. Full details are in [`CLAUDE.md`](./CLAUDE.md).
