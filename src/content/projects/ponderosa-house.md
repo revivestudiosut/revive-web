@@ -2,9 +2,9 @@
 title: The Ponderosa House
 location: Alpine, UT
 description: ''
-hero: /images/hero-kitchen-process.jpg
+hero: /images/ponderosa-kitchen.jpg
 gallery:
-  - /images/hero-kitchen-process.jpg
+  - /images/ponderosa-kitchen.jpg
   - /images/ponderosa-great-room.jpg
   - /images/ponderosa-landing.jpg
   - /images/ponderosa-primary-bath.jpg
