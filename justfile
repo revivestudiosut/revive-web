@@ -46,7 +46,13 @@ deploy-production: _preflight-auth
     git tag "v$VERSION"
     npm run build
     npx wrangler pages deploy dist --project-name revive-web --branch main
-    echo "✓ Released and deployed v$VERSION (tag created locally; push with: git push origin v$VERSION)"
+
+    # Publish the release to origin: move main to the release commit, push it and the tag.
+    # (jj pushes bookmarks but not tags, so the tag is pushed with git.)
+    jj bookmark set main -r @-
+    jj git push --bookmark main
+    git push origin "v$VERSION"
+    echo "✓ Released and deployed v$VERSION (main + tag pushed to origin)."
 
 # Cloudflare logs
 logs-preview: _preflight-auth
