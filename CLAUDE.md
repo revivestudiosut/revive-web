@@ -9,7 +9,8 @@ Marketing website for Revive Studios, an interior design company in Alpine, UT. 
 **Build and deployment steps go through the `justfile` recipes, never raw `npm` or `wrangler`.** Run `just` to list recipes. The recipes wrap the underlying tools and (for production) also cut a release, so calling the tools directly skips important steps.
 
 ```bash
-just install            # Install dependencies
+just doctor             # Check your machine is set up correctly (run this first)
+just install            # Install dependencies (includes wrangler)
 just dev                # Local dev server on http://localhost:4321
 just build              # Build static site to dist/
 just preview            # Build, then preview the production build locally
@@ -216,7 +217,11 @@ Deploys go through the justfile (which wraps `wrangler pages deploy`). There is 
 
 **Workflow**: dev -> staging -> production. Validate at each stage before promoting.
 
-**Cloudflare auth.** `wrangler` needs `CLOUDFLARE_API_TOKEN` (a Pages-scoped token with *Cloudflare Pages: Edit*) and `CLOUDFLARE_ACCOUNT_ID` (`dd7ff2e714fde32812bdc06d12a5a407`). These are **not** part of the app env files, so deploys fail with an authentication error until you set them. Add them to `.env.dev` (gitignored, direnv-loaded) or export them in your shell. The token is a secret; never commit it. Note: `wrangler whoami` reports "incorrect permissions" with a Pages-scoped token. That is expected, and the deploy still works because the account ID is supplied directly.
+**Cloudflare auth.** `wrangler` needs `CLOUDFLARE_API_TOKEN` (a token with *Cloudflare Pages: Edit*) and `CLOUDFLARE_ACCOUNT_ID` (`dd7ff2e714fde32812bdc06d12a5a407`). The account ID is **not secret** and lives in the committed `.env`. The **token is secret** and goes in `.env.local` (gitignored, loaded by direnv on every tier). Every deploy/serve/logs recipe runs a `_preflight-auth` check first: it verifies the token via Cloudflare's `/user/tokens/verify` endpoint and, if it is missing or rejected, fails fast with plain-language setup steps before any build runs. Note: `wrangler whoami` reports "incorrect permissions" with a Pages-scoped token; that is expected (we use `/tokens/verify` instead), and deploys still work because the account ID is supplied directly.
+
+**One token covers all tiers; tokens cannot gate production.** There is one Pages project and the tiers are just branches, so a single account-scoped token deploys dev, staging, and production. Cloudflare's *Pages: Edit* permission is account-level with no per-branch scoping, so a token that can deploy dev/staging can also deploy production. Accidental production publishes are guarded by a typed confirmation in `just deploy-production`, and production is kept out of the non-technical editor workflow. Per-tier Cloudflare tokens are unnecessary, so `.env.staging`/`.env.production` do not exist.
+
+**Onboarding editors.** Required local tools: `just`, Node >= 22.12.0, `direnv` (installed, shell-hooked, and `direnv allow`-ed), and `git`. `just doctor` (or `bash scripts/doctor.sh`, runnable before anything is set up) checks all of these plus that `.env.local` has a token. Issue each editor their **own** Pages: Edit token (revoke/audit per person) from `dash.cloudflare.com -> My Profile -> API Tokens`.
 
 **`just deploy-production` also cuts a release.** Before deploying it patch-bumps `package.json`, makes a `release vX.Y.Z` commit, and creates a `vX.Y.Z` git tag. Consequences:
 - It bumps the version on *every* run. Do not run it just to re-publish identical content. For that one case, run a plain `wrangler pages deploy dist --project-name revive-web --branch main` (the single documented exception to the "use just" rule).
@@ -224,17 +229,16 @@ Deploys go through the justfile (which wraps `wrangler pages deploy`). There is 
 
 ## Environment Management
 
-Uses **direnv** to auto-load environment variables per deployment tier.
+Uses **direnv** to auto-load environment variables.
 
 | File | Secrets? | Checked in? | Purpose |
 |------|----------|-------------|---------|
-| `.env` | No | Yes | Shared defaults (placeholder Turnstile key, destination email) |
-| `.env.example` | No | Yes | Documents all required variables |
-| `.env.dev` | Yes | No | Dev environment keys |
-| `.env.staging` | Yes | No | Staging environment keys |
-| `.env.production` | Yes | No | Production environment keys |
-| `.dev.vars` | Yes | No | Wrangler local dev secrets for Pages Functions |
-| `.envrc` | No | Yes | direnv loader; reads `DEPLOY_ENV` to pick the right `.env.*` file |
+| `.env` | No | Yes | Shared defaults (Turnstile site key, destination email, `CLOUDFLARE_ACCOUNT_ID`) |
+| `.env.local` | Yes | No | **Your personal `CLOUDFLARE_API_TOKEN`** (and any machine-local secrets). Always loaded, tier-agnostic. |
+| `.env.example` | No | Yes | Documents every variable and where it belongs |
+| `.dev.vars` | Yes | No | Wrangler local dev secrets for Pages Functions (`just serve`) |
+| `.env.dev` | Yes | No | Optional local app-secret overrides (no longer holds Cloudflare auth) |
+| `.envrc` | No | Yes | direnv loader: loads `.env`, then `.env.local`, then an optional `.env.${DEPLOY_ENV}` |
 
 **Required variables**: `PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, `RESEND_API_KEY`, `CONTACT_TO_EMAIL`.
 
@@ -244,6 +248,6 @@ Uses **direnv** to auto-load environment variables per deployment tier.
 
 ### Adding a new secret
 1. Add it to `.env.example` to document it.
-2. Add it to `.env.dev`, `.env.staging`, and `.env.production` with real values.
+2. Add it to `.env.local` with the real value.
 3. If the Pages Function needs it at runtime, also set it in the Cloudflare dashboard.
 4. If it is needed at build time, prefix with `PUBLIC_` and reference as `import.meta.env.PUBLIC_VAR_NAME`.
