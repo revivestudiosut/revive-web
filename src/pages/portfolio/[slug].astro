@@ -29,6 +29,11 @@ const hasBody = (project.body?.trim().length ?? 0) > 0;
 const journalPosts = (await getCollection('journal'))
   .filter((post) => post.data.project?.id === project.id)
   .sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf());
+
+// Precompute column distributions for flush-top flex masonry
+const galleryWithIdx = gallery.map((img, i) => ({ img, i }));
+const galleryCols2 = [0, 1].map(c => galleryWithIdx.filter(({ i }) => i % 2 === c));
+const galleryCols3 = [0, 1, 2].map(c => galleryWithIdx.filter(({ i }) => i % 3 === c));
 ---
 
 <BaseLayout title={`${title} | Revive Studios`}>
@@ -62,17 +67,54 @@ const journalPosts = (await getCollection('journal'))
 
   <!-- Photo Gallery -->
   <section class="px-6 pb-20 md:px-12 md:pb-28">
-    <div class="mx-auto max-w-7xl space-y-4">
-      {gallery.map((image, i) => (
-        <div class="overflow-hidden">
-          <img
-            src={image}
-            alt={`${title}, Photo ${i + 1}`}
-            class="h-auto w-full object-cover"
-            loading={i === 0 ? 'eager' : 'lazy'}
-          />
-        </div>
-      ))}
+    <div class="mx-auto max-w-7xl">
+      <!-- Mobile: 1 column -->
+      <div class="flex flex-col gap-3 sm:hidden">
+        {gallery.map((image, i) => (
+          <div class="overflow-hidden">
+            <img
+              src={image}
+              alt={`${title}, Photo ${i + 1}`}
+              class="block h-auto w-full transition-transform duration-500 hover:scale-[1.03]"
+              loading={i === 0 ? 'eager' : 'lazy'}
+            />
+          </div>
+        ))}
+      </div>
+      <!-- Tablet: 2 columns -->
+      <div class="hidden gap-3 sm:flex lg:hidden">
+        {galleryCols2.map((col) => (
+          <div class="flex flex-1 flex-col gap-3">
+            {col.map(({ img, i }) => (
+              <div class="overflow-hidden">
+                <img
+                  src={img}
+                  alt={`${title}, Photo ${i + 1}`}
+                  class="block h-auto w-full transition-transform duration-500 hover:scale-[1.03]"
+                  loading={i < 2 ? 'eager' : 'lazy'}
+                />
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+      <!-- Desktop: 3 columns -->
+      <div class="hidden gap-3 lg:flex">
+        {galleryCols3.map((col) => (
+          <div class="flex flex-1 flex-col gap-3">
+            {col.map(({ img, i }) => (
+              <div class="overflow-hidden">
+                <img
+                  src={img}
+                  alt={`${title}, Photo ${i + 1}`}
+                  class="block h-auto w-full transition-transform duration-500 hover:scale-[1.03]"
+                  loading={i < 3 ? 'eager' : 'lazy'}
+                />
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   </section>
 
