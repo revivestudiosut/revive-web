@@ -1,17 +1,22 @@
 name: Release
 
-# Cut a release: bump the version, commit "release vX.Y.Z" to main, and push the tag.
-# Pushing the commit triggers deploy.yml (staging); pushing the tag triggers
-# deploy-production.yml (production). This is the one deliberate "make a release" action.
+# Make a release: bump the version, commit "release vX.Y.Z" to main, and push the tag (which
+# deploys production via deploy-production.yml). Gated by the `production` environment AND
+# queued AUTOMATICALLY on every push to main (i.e. every merge to staging). So the single
+# human action to release is approving the pending production deployment: on approval it
+# bumps + tags, and the tag triggers the production deploy.
 #
-# This job is gated by the `production` environment: when someone runs it, it WAITS until a
-# production owner approves, then bumps + tags + deploys. So tags and the production deploy
-# only happen on a production owner's approval.
+# - Auto (push to main): defaults to a patch bump. Concurrency keeps only the newest pending
+#   release (latest staging state). The bot's own "release vX.Y.Z" commits are skipped so a
+#   release does not queue another release.
+# - Manual (workflow_dispatch): same gate, but lets you choose minor/major.
 #
 # Why RELEASE_PAT and not GITHUB_TOKEN: GitHub will not start a workflow from a ref pushed
 # with the default GITHUB_TOKEN (recursion prevention), so the tag must be pushed with a
 # PAT (contents: write) for deploy-production.yml to fire.
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       level:
@@ -23,8 +28,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: release
+  cancel-in-progress: true
+
 jobs:
   release:
+    # Skip the bot's own "release vX.Y.Z" commit so a release does not queue another release.
+    if: ${{ github.event_name == 'workflow_dispatch' || !startsWith(github.event.head_commit.message, 'release v') }}
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -48,7 +59,7 @@ jobs:
 
       - name: Bump version, commit, and tag
         run: |
-          npm version "${{ inputs.level }}" --no-git-tag-version
+          npm version "${{ inputs.level || 'patch' }}" --no-git-tag-version
           VERSION=$(node -p "require('./package.json').version")
           git commit -am "release v$VERSION"
           git tag -a "v$VERSION" -m "release v$VERSION"

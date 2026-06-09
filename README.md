@@ -42,9 +42,9 @@ Each change moves up the three versions, gaining a review and a deploy at each s
 1. **Claude opens a pull request** (a "PR") with your change, and it deploys to **dev** automatically. See it live, before anyone approves it, at <https://dev.revive-web.pages.dev>.
 2. **A teammate approves the PR.** They review it on GitHub and click Approve. (GitHub does not let you approve your own change, so this is always a second set of eyes.)
 3. **It merges by itself and lands on staging.** As soon as it is approved and the automated build passes, the change is squashed into the main project, its temporary branch is cleaned up, and it deploys to **staging**: <https://staging.revive-web.pages.dev>. Staging reflects everything that has been approved.
-4. **Go live with a release.** When staging looks right, publish to production. A **release owner** must approve the release (in GitHub's _Actions_ tab); once they do, it records a new version number and updates the live site at <https://revivestudiosut.com>.
+4. **Go live with one approval.** Whenever something reaches staging, a release is lined up automatically and waits. To publish, a **release owner** opens the pending release in GitHub's _Actions_ tab and clicks **Approve** — that records a new version number and updates the live site at <https://revivestudiosut.com>. That single approval is the whole release; there is no separate "start the release" step.
 
-So the everyday loop is: **ask for a change → see it on dev → a teammate approves it → it lands on staging → a release owner ships it to production.** You do not need anything installed on your own computer for this; it all happens on GitHub and Cloudflare.
+So the everyday loop is: **ask for a change → see it on dev → a teammate approves it → it lands on staging → a release owner approves the pending release → production.** You do not need anything installed on your own computer for this; it all happens on GitHub and Cloudflare.
 
 > **Where to check your work:** dev (<https://dev.revive-web.pages.dev>) shows your change before approval; staging (<https://staging.revive-web.pages.dev>) shows it after it is approved and merged.
 

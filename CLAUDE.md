@@ -217,10 +217,10 @@ Browser                    Cloudflare
 | PR into `main` | `.github/workflows/ci.yml` | `npm ci` + build. No deploy. The required `build` check. |
 | PR approved | `.github/workflows/automerge.yml` | Arm squash auto-merge; GitHub merges once `build` passes, then deletes the head branch. |
 | Push/merge to `main` | `.github/workflows/deploy.yml` | Build + deploy to **staging** (the integration tier / release candidate). |
-| Manual (Actions tab), **gated** | `.github/workflows/release.yml` | Waits for a **production owner** to approve, then bumps `package.json`, commits `release vX.Y.Z`, and pushes the tag. |
+| Push/merge to `main`, **gated** | `.github/workflows/release.yml` | Auto-queues a release that **waits at the `production` gate**. On a **production owner's approval** it bumps `package.json`, commits `release vX.Y.Z`, and pushes the tag. (Skips the bot's own release commits; manual `workflow_dispatch` allows minor/major.) |
 | Push a `vX.Y.Z` tag | `.github/workflows/deploy-production.yml` | Rebuild the tagged commit, deploy to **production**. |
 
-**Flow** (three-tier ladder): an org member opens a PR -> it deploys to **dev** for review -> it gets **1 approval** -> `automerge.yml` squash-merges to `main` -> `main` deploys to **staging** -> to ship, run the **Release** workflow, which waits for a **production owner** to approve, then tags `main` and the tag deploys to **production**.
+**Flow** (three-tier ladder): an org member opens a PR -> it deploys to **dev** for review -> it gets **1 approval** -> `automerge.yml` squash-merges to `main` -> `main` deploys to **staging** and a release is **queued automatically, waiting at the production gate** -> a **production owner approves** that pending deployment -> it tags `main` and the tag deploys to **production**. Releasing is a single action: approve the pending production deployment (no separate "run the workflow" step). Concurrency keeps only the newest pending release, so the gate always represents the current staging state.
 
 The three tiers and what each means:
 - **dev** — `dev.revive-web.pages.dev` — the open PR under review (pre-merge). Shared alias, so concurrent PRs overwrite each other here (accepted; low velocity).
