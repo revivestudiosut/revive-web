@@ -1,7 +1,7 @@
 {
   "name": "revive-web",
   "type": "module",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "engines": {
     "node": ">=22.12.0"
   },
