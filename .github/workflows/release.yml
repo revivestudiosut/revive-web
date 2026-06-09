@@ -1,0 +1,53 @@
+name: Release
+
+# Cut a release: bump the version, commit "release vX.Y.Z" to main, and push the tag.
+# Pushing the commit triggers deploy.yml (dev + staging); pushing the tag triggers
+# deploy-production.yml (production). This is the one deliberate "make a release" action.
+#
+# Why RELEASE_PAT and not GITHUB_TOKEN: GitHub will not start a workflow from a ref pushed
+# with the default GITHUB_TOKEN (recursion prevention), so the tag must be pushed with a
+# PAT (contents: write) for deploy-production.yml to fire.
+on:
+  workflow_dispatch:
+    inputs:
+      level:
+        description: Version bump level
+        type: choice
+        default: patch
+        options: [patch, minor, major]
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_PAT }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Configure git identity
+        run: |
+          git config user.name "revive-web release bot"
+          git config user.email "noreply@revivestudiosut.com"
+
+      - name: Bump version, commit, and tag
+        run: |
+          npm version "${{ inputs.level }}" --no-git-tag-version
+          VERSION=$(node -p "require('./package.json').version")
+          git commit -am "release v$VERSION"
+          git tag "v$VERSION"
+          echo "Released v$VERSION"
+
+      - name: Push commit and tag
+        run: git push origin HEAD:main --follow-tags

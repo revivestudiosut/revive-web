@@ -1,0 +1,37 @@
+name: Deploy (production)
+
+# Production release: pushing a vX.Y.Z tag publishes to the live site.
+# The tag is normally created by the release workflow; pushing a tag by hand works too.
+# Rebuilds the tagged commit (deterministic static build) and deploys to the main alias.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build site
+        run: npm run build
+
+      - name: Deploy to production
+        run: npx wrangler pages deploy dist --project-name revive-web --branch main

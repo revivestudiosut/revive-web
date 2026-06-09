@@ -1,0 +1,40 @@
+name: Deploy (dev + staging)
+
+# Trunk-based continuous deployment: every push to main builds the site ONCE and
+# deploys that same dist/ to the dev alias, then promotes it to the staging alias.
+# Production is handled separately by deploy-production.yml (triggered by a v* tag).
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-nonprod
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build site
+        run: npm run build
+
+      - name: Deploy to dev
+        run: npx wrangler pages deploy dist --project-name revive-web --branch dev
+
+      - name: Promote same build to staging
+        run: npx wrangler pages deploy dist --project-name revive-web --branch staging
