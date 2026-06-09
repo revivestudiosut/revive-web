@@ -1,0 +1,32 @@
+name: Auto-merge approved PRs
+
+# When a PR is approved, arm squash auto-merge. GitHub then merges it as soon as the
+# branch ruleset is satisfied (required CI check green), and deletes the head branch.
+#
+# Uses RELEASE_PAT (not GITHUB_TOKEN) on purpose: a merge performed via GITHUB_TOKEN does
+# not re-trigger workflows, so deploy.yml (dev + staging on push to main) would not run.
+# Attributing the merge to the PAT keeps the post-merge deploy firing.
+#
+# Assumes PRs come from branches in this repo (org collaborators), not forks — secrets are
+# not exposed to fork-originated events.
+on:
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  enable-auto-merge:
+    if: >-
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Arm squash auto-merge
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PAT }}
+          GH_REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: gh pr merge --auto --squash --delete-branch "$PR"
