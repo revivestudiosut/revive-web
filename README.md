@@ -37,17 +37,16 @@ There are three versions of the site, and changes move through them in order so 
 
 ### How a change goes live
 
-Every change is reviewed before it can reach the live site. Once you ask Claude to publish, the steps are mostly automatic:
+Each change moves up the three versions, gaining a review and a deploy at each step. Once you ask Claude to publish, most of it is automatic:
 
-1. **Claude opens a pull request** (a "PR") with your change. Nothing is public yet.
-2. **A teammate approves it.** They review the PR on GitHub and click Approve. (GitHub does not let you approve your own change, so this is always a second set of eyes.)
-3. **It merges by itself.** As soon as it is approved and the automated build passes, the change is squashed into the main project and its temporary branch is cleaned up automatically.
-4. **Dev and staging update on their own**, within a minute or two. **This is where you check your work before it reaches the public:**
-   - Dev: <https://dev.revive-web.pages.dev>
-   - Staging: <https://staging.revive-web.pages.dev>
-5. **Go live with a release.** When dev and staging look right, publish to production by asking Claude to "cut a release" (or run the **Release** workflow in GitHub's _Actions_ tab). That records a new version number and updates <https://revivestudiosut.com> automatically.
+1. **Claude opens a pull request** (a "PR") with your change, and it deploys to **dev** automatically. See it live, before anyone approves it, at <https://dev.revive-web.pages.dev>.
+2. **A teammate approves the PR.** They review it on GitHub and click Approve. (GitHub does not let you approve your own change, so this is always a second set of eyes.)
+3. **It merges by itself and lands on staging.** As soon as it is approved and the automated build passes, the change is squashed into the main project, its temporary branch is cleaned up, and it deploys to **staging**: <https://staging.revive-web.pages.dev>. Staging reflects everything that has been approved.
+4. **Go live with a release.** When staging looks right, publish to production. A **release owner** must approve the release (in GitHub's _Actions_ tab); once they do, it records a new version number and updates the live site at <https://revivestudiosut.com>.
 
-So the everyday loop is: **ask for a change → a teammate approves it → check it on the dev and staging URLs → release to production when you're happy.** You do not need anything installed on your own computer for this; it all happens on GitHub and Cloudflare.
+So the everyday loop is: **ask for a change → see it on dev → a teammate approves it → it lands on staging → a release owner ships it to production.** You do not need anything installed on your own computer for this; it all happens on GitHub and Cloudflare.
+
+> **Where to check your work:** dev (<https://dev.revive-web.pages.dev>) shows your change before approval; staging (<https://staging.revive-web.pages.dev>) shows it after it is approved and merged.
 
 ### If GitHub Actions is ever unavailable
 

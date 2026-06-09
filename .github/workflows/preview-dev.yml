@@ -1,0 +1,51 @@
+name: Deploy PR to dev
+
+# When an organization member opens/updates a PR (from a branch in THIS repo, not a fork),
+# build it and deploy to the shared `dev` alias so reviewers can see the change live before
+# it is merged. Gated to trusted authors because the deploy uses CLOUDFLARE_API_TOKEN; fork
+# PRs receive no secrets and are skipped (ci.yml still build-checks every PR).
+#
+# Low-velocity site: the `dev` alias is shared, so two open PRs deploying at once would
+# overwrite each other on dev.revive-web.pages.dev. Accepted tradeoff for simplicity.
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-dev-pr-${{ github.event.number }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-dev:
+    if: >-
+      github.event.pull_request.head.repo.fork == false &&
+      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association)
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build site
+        run: npm run build
+
+      - name: Deploy to dev
+        run: npx wrangler pages deploy dist --project-name revive-web --branch dev
+
+      - name: Note dev URL
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+        run: |
+          echo "Deployed PR #${PR_NUMBER} to https://dev.revive-web.pages.dev" >> "$GITHUB_STEP_SUMMARY"

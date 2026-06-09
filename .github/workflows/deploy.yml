@@ -1,8 +1,9 @@
-name: Deploy (dev + staging)
+name: Deploy (staging)
 
-# Trunk-based continuous deployment: every push to main builds the site ONCE and
-# deploys that same dist/ to the dev alias, then promotes it to the staging alias.
-# Production is handled separately by deploy-production.yml (triggered by a v* tag).
+# Every push to main (i.e. an approved PR merged) builds the site and deploys it to the
+# staging alias. Staging is the integration tier / release candidate. PR previews go to the
+# dev alias before merge (preview-dev.yml); production is a gated release (release.yml ->
+# deploy-production.yml).
 on:
   push:
     branches: [main]
@@ -11,7 +12,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: deploy-nonprod
+  group: deploy-staging
   cancel-in-progress: true
 
 jobs:
@@ -33,8 +34,5 @@ jobs:
       - name: Build site
         run: npm run build
 
-      - name: Deploy to dev
-        run: npx wrangler pages deploy dist --project-name revive-web --branch dev
-
-      - name: Promote same build to staging
+      - name: Deploy to staging
         run: npx wrangler pages deploy dist --project-name revive-web --branch staging

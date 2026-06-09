@@ -213,15 +213,19 @@ Browser                    Cloudflare
 
 | Trigger | Workflow | Result |
 |---|---|---|
-| PR into `main` | `.github/workflows/ci.yml` | `npm ci` + build. No deploy. The gate before trunk. |
-| Push/merge to `main` | `.github/workflows/deploy.yml` | Build once, deploy that `dist/` to **dev**, then promote the same build to **staging**. |
+| PR opened/updated (org member) | `.github/workflows/preview-dev.yml` | Build + deploy the PR to **dev** for review (shared `dev` alias; trusted same-repo authors only, fork PRs skipped). |
+| PR into `main` | `.github/workflows/ci.yml` | `npm ci` + build. No deploy. The required `build` check. |
+| PR approved | `.github/workflows/automerge.yml` | Arm squash auto-merge; GitHub merges once `build` passes, then deletes the head branch. |
+| Push/merge to `main` | `.github/workflows/deploy.yml` | Build + deploy to **staging** (the integration tier / release candidate). |
+| Manual (Actions tab), **gated** | `.github/workflows/release.yml` | Waits for a **production owner** to approve, then bumps `package.json`, commits `release vX.Y.Z`, and pushes the tag. |
 | Push a `vX.Y.Z` tag | `.github/workflows/deploy-production.yml` | Rebuild the tagged commit, deploy to **production**. |
-| Manual (Actions tab) | `.github/workflows/release.yml` | Bump `package.json`, commit `release vX.Y.Z` to `main`, push the tag. This is how you cut a release. |
-| PR approved | `.github/workflows/automerge.yml` | Arm squash auto-merge; GitHub merges once the `build` check passes, then deletes the head branch. |
 
-**Flow**: open a PR -> get it approved -> it squash-merges automatically -> dev + staging redeploy and stay current with trunk (staging is always the release candidate). To ship, run the **Release** workflow from the Actions tab; it tags the current `main`, and the tag triggers the production deploy. Because the release commit and the tag are the same SHA, production runs the exact bytes that were on staging.
+**Flow** (three-tier ladder): an org member opens a PR -> it deploys to **dev** for review -> it gets **1 approval** -> `automerge.yml` squash-merges to `main` -> `main` deploys to **staging** -> to ship, run the **Release** workflow, which waits for a **production owner** to approve, then tags `main` and the tag deploys to **production**.
 
-`dev.revive-web.pages.dev` / `staging.revive-web.pages.dev` / `revivestudiosut.com` (+ `www`) are the three URLs.
+The three tiers and what each means:
+- **dev** — `dev.revive-web.pages.dev` — the open PR under review (pre-merge). Shared alias, so concurrent PRs overwrite each other here (accepted; low velocity).
+- **staging** — `staging.revive-web.pages.dev` — the merged trunk / release candidate.
+- **production** — `revivestudiosut.com` (+ `www`) — the released site.
 
 ### Branch protection & the PR workflow
 
@@ -232,7 +236,11 @@ The repo is **public** (`revivestudiosut/revive-web`), which is what makes GitHu
 - On approval, `automerge.yml` **squash-merges** automatically and the head branch is **deleted** (`delete_branch_on_merge`); squash is the only enabled merge method.
 - **Org/repo admins bypass** the ruleset, by design: `release.yml` pushes the `release vX.Y.Z` commit + tag straight to `main`, which works only because `RELEASE_PAT` acts as an admin. Admins can therefore also push to `main` directly (e.g. the `just` fallback); team members cannot.
 
-**Why a PAT (not `GITHUB_TOKEN`).** GitHub will not start a workflow from a ref pushed with the default `GITHUB_TOKEN` (recursion prevention). So `release.yml` pushes its commit + tag using `RELEASE_PAT`; otherwise the tag would never trigger `deploy-production.yml`. The same reason applies to `automerge.yml`: it enables auto-merge with `RELEASE_PAT` so the resulting squash-merge to `main` re-triggers `deploy.yml` (dev + staging). Pushing a tag by hand from a laptop (`git push origin vX.Y.Z`) also triggers production normally.
+**Approving a PR vs. releasing to production are separate capabilities:**
+- **Approve a PR** = any collaborator with **Write** access (their review satisfies the ruleset's required approval). `johnsbom000` has this.
+- **Release to production** = a **required reviewer on the `production` GitHub Environment** ("production owner"). `release.yml` runs in that environment, so it pauses until an owner approves, then tags + deploys. Owners today: **`trentdavies`, `johnsbom000`**. Admin bypass is enabled, so admins can release without waiting. A Write collaborator who is *not* a production owner can open/approve PRs and even start a release, but cannot pass the production gate.
+
+**Why a PAT (not `GITHUB_TOKEN`).** GitHub will not start a workflow from a ref pushed with the default `GITHUB_TOKEN` (recursion prevention). So `release.yml` pushes its commit + tag using `RELEASE_PAT`; otherwise the tag would never trigger `deploy-production.yml`. The same reason applies to `automerge.yml`: it enables auto-merge with `RELEASE_PAT` so the resulting squash-merge to `main` re-triggers `deploy.yml` (staging). Pushing a tag by hand from a laptop (`git push origin vX.Y.Z`) also triggers production normally.
 
 ### Required GitHub repo configuration
 
