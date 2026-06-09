@@ -207,7 +207,7 @@ Browser                    Cloudflare
 
 ## Deployment
 
-**CI (GitHub Actions) is the primary deploy path.** The pipeline is trunk-based: `main` is the trunk, and deploys originate from it, not from long-lived per-tier branches. There is one Cloudflare Pages project, `revive-web`; the deployment tiers (`dev`, `staging`, `main`) are Cloudflare deploy *aliases* selected with `--branch`, not git branches you maintain. The `just deploy-*` recipes remain as a manual/emergency fallback (see below).
+**CI (GitHub Actions) is the primary deploy path.** The pipeline is trunk-based: `main` is the trunk, and deploys originate from it, not from long-lived per-tier branches. Changes reach `main` only through approved pull requests (see *Branch protection* below). There is one Cloudflare Pages project, `revive-web`; the deployment tiers (`dev`, `staging`, `main`) are Cloudflare deploy *aliases* selected with `--branch`, not git branches you maintain. The `just deploy-*` recipes remain as a manual/emergency fallback (see below).
 
 ### The pipeline
 
@@ -217,12 +217,22 @@ Browser                    Cloudflare
 | Push/merge to `main` | `.github/workflows/deploy.yml` | Build once, deploy that `dist/` to **dev**, then promote the same build to **staging**. |
 | Push a `vX.Y.Z` tag | `.github/workflows/deploy-production.yml` | Rebuild the tagged commit, deploy to **production**. |
 | Manual (Actions tab) | `.github/workflows/release.yml` | Bump `package.json`, commit `release vX.Y.Z` to `main`, push the tag. This is how you cut a release. |
+| PR approved | `.github/workflows/automerge.yml` | Arm squash auto-merge; GitHub merges once the `build` check passes, then deletes the head branch. |
 
-**Flow**: merge to `main` keeps dev + staging continuously current with trunk (staging is always the release candidate). To ship, run the **Release** workflow from the Actions tab; it tags the current `main`, and the tag triggers the production deploy. Because the release commit and the tag are the same SHA, production runs the exact bytes that were on staging.
+**Flow**: open a PR -> get it approved -> it squash-merges automatically -> dev + staging redeploy and stay current with trunk (staging is always the release candidate). To ship, run the **Release** workflow from the Actions tab; it tags the current `main`, and the tag triggers the production deploy. Because the release commit and the tag are the same SHA, production runs the exact bytes that were on staging.
 
 `dev.revive-web.pages.dev` / `staging.revive-web.pages.dev` / `revivestudiosut.com` (+ `www`) are the three URLs.
 
-**Why a PAT for releases.** GitHub will not start a workflow from a ref pushed with the default `GITHUB_TOKEN` (recursion prevention). So `release.yml` pushes its commit + tag using `RELEASE_PAT`; otherwise the tag would never trigger `deploy-production.yml`. Pushing a tag by hand from a laptop (`git push origin vX.Y.Z`) also triggers production normally.
+### Branch protection & the PR workflow
+
+The repo is **public** (`revivestudiosut/revive-web`), which is what makes GitHub's free branch *rulesets* available. An active ruleset on `main` enforces the team workflow:
+
+- **Every change goes through a PR** — direct pushes and force-pushes to `main` are blocked.
+- A PR needs **1 approving review** and a green **`build`** check (`ci.yml`) before it can merge.
+- On approval, `automerge.yml` **squash-merges** automatically and the head branch is **deleted** (`delete_branch_on_merge`); squash is the only enabled merge method.
+- **Org/repo admins bypass** the ruleset, by design: `release.yml` pushes the `release vX.Y.Z` commit + tag straight to `main`, which works only because `RELEASE_PAT` acts as an admin. Admins can therefore also push to `main` directly (e.g. the `just` fallback); team members cannot.
+
+**Why a PAT (not `GITHUB_TOKEN`).** GitHub will not start a workflow from a ref pushed with the default `GITHUB_TOKEN` (recursion prevention). So `release.yml` pushes its commit + tag using `RELEASE_PAT`; otherwise the tag would never trigger `deploy-production.yml`. The same reason applies to `automerge.yml`: it enables auto-merge with `RELEASE_PAT` so the resulting squash-merge to `main` re-triggers `deploy.yml` (dev + staging). Pushing a tag by hand from a laptop (`git push origin vX.Y.Z`) also triggers production normally.
 
 ### Required GitHub repo configuration
 
@@ -232,7 +242,7 @@ Set these once in **Settings -> Secrets and variables -> Actions** on `revivestu
 |---|---|---|
 | `CLOUDFLARE_API_TOKEN` | Secret | A dedicated CI *Cloudflare Pages: Edit* token (revocable independently of personal tokens). |
 | `CLOUDFLARE_ACCOUNT_ID` | Variable | `dd7ff2e714fde32812bdc06d12a5a407` (not secret). |
-| `RELEASE_PAT` | Secret | Fine-grained PAT, this repo, **Contents: Read and write**. Lets `release.yml` push the commit/tag so the tag triggers prod. (A GitHub App token via `actions/create-github-app-token` is an equivalent.) |
+| `RELEASE_PAT` | Secret | Fine-grained PAT, this repo, **Contents: Read and write** + **Pull requests: Read and write**. Contents lets `release.yml` push the commit/tag (so the tag triggers prod); Pull requests lets `automerge.yml` enable auto-merge. (A GitHub App token via `actions/create-github-app-token` is an equivalent.) |
 
 Runtime secrets (`RESEND_API_KEY`, `TURNSTILE_SECRET_KEY`, `CONTACT_TO_EMAIL`, `EMAIL_FROM`) are **not** GitHub secrets; Cloudflare injects them at request time from its own dashboard config. The build-time `PUBLIC_TURNSTILE_SITE_KEY` is read from the committed `.env` by Astro at build time, so CI needs no build secret.
 

@@ -29,25 +29,29 @@ Before anything goes live, you can see it on your own computer.
 
 ## Publishing the site
 
-There are three versions of the site, and you move changes through them in order so nothing breaks the live site:
+There are three versions of the site, and changes move through them in order so nothing breaks the live site:
 
-1. **Dev** (`dev.revive-web.pages.dev`): a private sandbox for trying things out.
-2. **Staging** (`staging.revive-web.pages.dev`): a final review copy.
-3. **Production** (`revivestudiosut.com`): the real, public website.
+1. **Dev** — <https://dev.revive-web.pages.dev> — where your change appears first.
+2. **Staging** — <https://staging.revive-web.pages.dev> — the review copy, kept in step with the latest approved changes.
+3. **Production** — <https://revivestudiosut.com> — the real, public website.
 
-The normal flow is dev, then staging, then production. Ask Claude to publish and it runs the right command for each step:
+### How a change goes live
 
-| Step | What to ask Claude | Behind the scenes |
-|------|--------------------|-------------------|
-| Try it out | "Publish to dev" | `just deploy-dev` |
-| Review copy | "Publish to staging" | `just deploy-staging` |
-| Go live | "Publish to production" | `just deploy-production` |
+Every change is reviewed before it can reach the live site. Once you ask Claude to publish, the steps are mostly automatic:
 
-**Always test on dev or staging first, then go live.** Publishing to production also records a new version number for the site, so only do it when you actually have changes to release. As a safety step, publishing to production asks you to type `yes` to confirm.
+1. **Claude opens a pull request** (a "PR") with your change. Nothing is public yet.
+2. **A teammate approves it.** They review the PR on GitHub and click Approve. (GitHub does not let you approve your own change, so this is always a second set of eyes.)
+3. **It merges by itself.** As soon as it is approved and the automated build passes, the change is squashed into the main project and its temporary branch is cleaned up automatically.
+4. **Dev and staging update on their own**, within a minute or two. **This is where you check your work before it reaches the public:**
+   - Dev: <https://dev.revive-web.pages.dev>
+   - Staging: <https://staging.revive-web.pages.dev>
+5. **Go live with a release.** When dev and staging look right, publish to production by asking Claude to "cut a release" (or run the **Release** workflow in GitHub's _Actions_ tab). That records a new version number and updates <https://revivestudiosut.com> automatically.
 
-**The first time you publish from a new computer**, you need a one-time Cloudflare login set up (see [First-time setup](#first-time-setup-technical) below). If a publish ever says authentication is missing, run `just doctor` and it will tell you exactly what to fix.
+So the everyday loop is: **ask for a change → a teammate approves it → check it on the dev and staging URLs → release to production when you're happy.** You do not need anything installed on your own computer for this; it all happens on GitHub and Cloudflare.
 
-> Note for whoever runs the commands directly: build and deployment go through the `justfile` recipes, never raw `npm` or `wrangler`. Run `just` to see all available recipes.
+### If GitHub Actions is ever unavailable
+
+There is a manual fallback that publishes straight from a set-up computer: `just deploy-dev`, `just deploy-staging`, and `just deploy-production` (an emergency direct publish, no version bump). It skips the review step, so use it only in an emergency, and it needs the one-time [First-time setup](#first-time-setup-technical) below. If a manual deploy ever says authentication is missing, run `just doctor`. Build and deployment otherwise go through the `justfile` recipes, never raw `npm` or `wrangler` — run `just` to see them.
 
 ## Where things live
 
@@ -68,7 +72,7 @@ You usually will not need to open these yourself. Claude knows where everything 
 
 ## First-time setup (technical)
 
-This part is only needed once, by the person setting up the project on a new computer.
+This part is only needed once, by the person setting up the project on a new computer. It covers running the site locally and the emergency manual deploy — everyday publishing happens automatically on GitHub and needs none of this.
 
 **Prerequisites** (install these once, all available via `brew install`)
 
