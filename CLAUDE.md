@@ -17,7 +17,7 @@ just preview            # Build, then preview the production build locally
 just serve              # Build, then run wrangler pages dev (local Pages Functions: Turnstile + Resend)
 just deploy-dev         # Build + deploy to dev      (dev.revive-web.pages.dev)
 just deploy-staging     # Build + deploy to staging  (staging.revive-web.pages.dev)
-just deploy-production  # Release (version bump + tag) + build + deploy to production
+just deploy-production  # Emergency fallback: direct build + deploy to production (no bump/tag). Releases go through GitHub Actions.
 just logs-preview       # Tail Cloudflare logs for the preview environment
 just logs-production    # Tail Cloudflare logs for production
 just clean              # Remove dist, .astro, node_modules
@@ -207,25 +207,45 @@ Browser                    Cloudflare
 
 ## Deployment
 
-Deploys go through the justfile (which wraps `wrangler pages deploy`). There is one Cloudflare Pages project, `revive-web`; the deployment tiers are git *branches* on that project. Each deploy recipe runs a build first, then deploys `dist/`.
+**CI (GitHub Actions) is the primary deploy path.** The pipeline is trunk-based: `main` is the trunk, and deploys originate from it, not from long-lived per-tier branches. There is one Cloudflare Pages project, `revive-web`; the deployment tiers (`dev`, `staging`, `main`) are Cloudflare deploy *aliases* selected with `--branch`, not git branches you maintain. The `just deploy-*` recipes remain as a manual/emergency fallback (see below).
 
-| Command | Cloudflare branch | URL |
+### The pipeline
+
+| Trigger | Workflow | Result |
 |---|---|---|
-| `just deploy-dev` | `dev` | `dev.revive-web.pages.dev` |
-| `just deploy-staging` | `staging` | `staging.revive-web.pages.dev` |
-| `just deploy-production` | `main` (production) | `revivestudiosut.com`, `www.revivestudiosut.com` |
+| PR into `main` | `.github/workflows/ci.yml` | `npm ci` + build. No deploy. The gate before trunk. |
+| Push/merge to `main` | `.github/workflows/deploy.yml` | Build once, deploy that `dist/` to **dev**, then promote the same build to **staging**. |
+| Push a `vX.Y.Z` tag | `.github/workflows/deploy-production.yml` | Rebuild the tagged commit, deploy to **production**. |
+| Manual (Actions tab) | `.github/workflows/release.yml` | Bump `package.json`, commit `release vX.Y.Z` to `main`, push the tag. This is how you cut a release. |
 
-**Workflow**: dev -> staging -> production. Validate at each stage before promoting.
+**Flow**: merge to `main` keeps dev + staging continuously current with trunk (staging is always the release candidate). To ship, run the **Release** workflow from the Actions tab; it tags the current `main`, and the tag triggers the production deploy. Because the release commit and the tag are the same SHA, production runs the exact bytes that were on staging.
 
-**Cloudflare auth.** `wrangler` needs `CLOUDFLARE_API_TOKEN` (a token with *Cloudflare Pages: Edit*) and `CLOUDFLARE_ACCOUNT_ID` (`dd7ff2e714fde32812bdc06d12a5a407`). The account ID is **not secret** and lives in the committed `.env`. The **token is secret** and goes in `.env.local` (gitignored, loaded by direnv on every tier). Every deploy/serve/logs recipe runs a `_preflight-auth` check first: it verifies the token via Cloudflare's `/user/tokens/verify` endpoint and, if it is missing or rejected, fails fast with plain-language setup steps before any build runs. Note: `wrangler whoami` reports "incorrect permissions" with a Pages-scoped token; that is expected (we use `/tokens/verify` instead), and deploys still work because the account ID is supplied directly.
+`dev.revive-web.pages.dev` / `staging.revive-web.pages.dev` / `revivestudiosut.com` (+ `www`) are the three URLs.
 
-**One token covers all tiers; tokens cannot gate production.** There is one Pages project and the tiers are just branches, so a single account-scoped token deploys dev, staging, and production. Cloudflare's *Pages: Edit* permission is account-level with no per-branch scoping, so a token that can deploy dev/staging can also deploy production. Accidental production publishes are guarded by a typed confirmation in `just deploy-production`, and production is kept out of the non-technical editor workflow. Per-tier Cloudflare tokens are unnecessary, so `.env.staging`/`.env.production` do not exist.
+**Why a PAT for releases.** GitHub will not start a workflow from a ref pushed with the default `GITHUB_TOKEN` (recursion prevention). So `release.yml` pushes its commit + tag using `RELEASE_PAT`; otherwise the tag would never trigger `deploy-production.yml`. Pushing a tag by hand from a laptop (`git push origin vX.Y.Z`) also triggers production normally.
 
-**Onboarding editors.** Required local tools: `just`, Node >= 22.12.0, `direnv` (installed, shell-hooked, and `direnv allow`-ed), and `git`. `just doctor` (or `bash scripts/doctor.sh`, runnable before anything is set up) checks all of these plus that `.env.local` has a token. Issue each editor their **own** Pages: Edit token (revoke/audit per person) from `dash.cloudflare.com -> My Profile -> API Tokens`.
+### Required GitHub repo configuration
 
-**`just deploy-production` also cuts a release.** Before deploying it patch-bumps `package.json`, makes a `release vX.Y.Z` commit, and creates a `vX.Y.Z` git tag. Consequences:
-- It bumps the version on *every* run. Do not run it just to re-publish identical content. For that one case, run a plain `wrangler pages deploy dist --project-name revive-web --branch main` (the single documented exception to the "use just" rule).
-- Afterward, push the tag yourself: `git push origin vX.Y.Z` (the recipe creates it locally only).
+Set these once in **Settings -> Secrets and variables -> Actions** on `revivestudiosut/revive-web`:
+
+| Name | Kind | Value / scope |
+|---|---|---|
+| `CLOUDFLARE_API_TOKEN` | Secret | A dedicated CI *Cloudflare Pages: Edit* token (revocable independently of personal tokens). |
+| `CLOUDFLARE_ACCOUNT_ID` | Variable | `dd7ff2e714fde32812bdc06d12a5a407` (not secret). |
+| `RELEASE_PAT` | Secret | Fine-grained PAT, this repo, **Contents: Read and write**. Lets `release.yml` push the commit/tag so the tag triggers prod. (A GitHub App token via `actions/create-github-app-token` is an equivalent.) |
+
+Runtime secrets (`RESEND_API_KEY`, `TURNSTILE_SECRET_KEY`, `CONTACT_TO_EMAIL`, `EMAIL_FROM`) are **not** GitHub secrets; Cloudflare injects them at request time from its own dashboard config. The build-time `PUBLIC_TURNSTILE_SITE_KEY` is read from the committed `.env` by Astro at build time, so CI needs no build secret.
+
+### Manual fallback (`just deploy-*`)
+
+For laptop deploys when Actions is unavailable. Each recipe builds, then deploys `dist/`. `wrangler` needs `CLOUDFLARE_API_TOKEN` (a *Cloudflare Pages: Edit* token, secret, in `.env.local`) and `CLOUDFLARE_ACCOUNT_ID` (not secret, in the committed `.env`). Every deploy/serve/logs recipe runs a `_preflight-auth` check first: it verifies the token via Cloudflare's `/user/tokens/verify` endpoint and fails fast with setup steps if missing or rejected. Note: `wrangler whoami` reports "incorrect permissions" with a Pages-scoped token; that is expected (we use `/tokens/verify` instead), and deploys still work because the account ID is supplied directly.
+
+- `just deploy-dev` / `just deploy-staging` — build + deploy to that alias.
+- `just deploy-production` — **emergency direct publish only**: builds and deploys current content to the `main` alias with **no version bump and no tag**. Releases (bump + tag) belong to the Release workflow. Guarded by a typed `yes` confirmation.
+
+**One token covers all tiers; tokens cannot gate production.** There is one Pages project and the tiers are just aliases, so a single account-scoped token deploys dev, staging, and production. Cloudflare's *Pages: Edit* permission is account-level with no per-branch scoping, so a token that can deploy dev/staging can also deploy production. Per-tier Cloudflare tokens are unnecessary, so `.env.staging`/`.env.production` do not exist.
+
+**Onboarding editors.** Required local tools for the manual fallback: `just`, Node >= 22.12.0 (see `.nvmrc`), `direnv` (installed, shell-hooked, and `direnv allow`-ed), and `git`. `just doctor` (or `bash scripts/doctor.sh`, runnable before anything is set up) checks all of these plus that `.env.local` has a token. Issue each editor their **own** Pages: Edit token (revoke/audit per person) from `dash.cloudflare.com -> My Profile -> API Tokens`.
 
 ## Environment Management
 

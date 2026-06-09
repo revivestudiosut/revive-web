@@ -25,34 +25,24 @@ deploy-dev: _preflight-auth build
 deploy-staging: _preflight-auth build
     npx wrangler pages deploy dist --project-name revive-web --branch staging
 
+# Emergency direct production deploy (fallback for when GitHub Actions is unavailable).
+# Releases normally go through the "Release" workflow in GitHub Actions, which bumps the
+# version, tags, and lets the tag-triggered pipeline publish. This recipe just publishes
+# the current content to production with NO version bump and NO tag.
 deploy-production: _preflight-auth
     #!/usr/bin/env bash
     set -euo pipefail
 
     # Production safety guard
     echo "⚠ You are about to publish to the LIVE production site (revivestudiosut.com)."
+    echo "  Note: this is the emergency fallback. Prefer the GitHub Actions 'Release' workflow,"
+    echo "  which bumps the version and tags the release. This recipe does neither."
     read -r -p "Type 'yes' to continue: " confirm
     [ "$confirm" = "yes" ] || { echo "Aborted. Nothing was published."; exit 1; }
 
-    # Warn if uncommitted changes would be swept into the release commit
-    if [ -n "$(git status --porcelain)" ]; then
-      read -r -p "⚠ Uncommitted changes will be in the release commit. Type 'yes' to proceed: " c2
-      [ "$c2" = "yes" ] || { echo "Aborted. Nothing was published."; exit 1; }
-    fi
-
-    npm version patch --no-git-tag-version
-    VERSION=$(node -p "require('./package.json').version")
-    jj commit -m "release v$VERSION"
-    git tag "v$VERSION"
     npm run build
     npx wrangler pages deploy dist --project-name revive-web --branch main
-
-    # Publish the release to origin: move main to the release commit, push it and the tag.
-    # (jj pushes bookmarks but not tags, so the tag is pushed with git.)
-    jj bookmark set main -r @-
-    jj git push --bookmark main
-    git push origin "v$VERSION"
-    echo "✓ Released and deployed v$VERSION (main + tag pushed to origin)."
+    echo "✓ Deployed current content to production (no version bump, no tag)."
 
 # Cloudflare logs
 logs-preview: _preflight-auth
