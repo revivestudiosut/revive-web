@@ -1,0 +1,33 @@
+---
+interface Props {
+  package: {
+    id: string;
+    name: string;
+    description: string;
+    image: string;
+    imageAlt: string;
+    includes: string[];
+    priceLabel?: string;
+    projectIds: string[];
+  };
+  projects: { id: string; data: { title: string } }[];
+}
+const { package: item, projects } = Astro.props;
+const examples = projects.filter((project) => item.projectIds.includes(project.id));
+---
+<article id={`package-${item.id}`} class="flex scroll-mt-28 flex-col border border-warm-gray bg-white">
+  <img src={item.image} alt={item.imageAlt} class="aspect-[4/3] w-full object-cover" loading="lazy" />
+  <div class="flex flex-1 flex-col p-6 md:p-8">
+    <h3 class="mb-3 font-serif text-3xl font-light">{item.name}</h3>
+    <p class="mb-5 leading-relaxed text-charcoal-light">{item.description}</p>
+    <ul class="mb-6 list-disc space-y-2 pl-5 text-charcoal-light">
+      {item.includes.map((detail) => <li>{detail}</li>)}
+    </ul>
+    {item.priceLabel && <p class="mb-6 font-medium text-olive">{item.priceLabel}</p>}
+    {examples.length > 0 && <div class="mb-6">
+      <p class="mb-2 text-xs font-medium uppercase tracking-[0.15em] text-charcoal-light">Related portfolio</p>
+      <ul class="space-y-2">{examples.map((project) => <li><a href={`/portfolio/${project.id}`} class="text-olive underline underline-offset-4 hover:text-olive-dark">{project.data.title}</a></li>)}</ul>
+    </div>}
+    <a href={`/book/${item.id}`} class="mt-auto inline-flex min-h-11 items-center justify-center border border-olive px-5 py-3 text-center text-xs font-medium uppercase tracking-[0.15em] text-olive transition-colors hover:bg-olive hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-olive">Appointment options</a>
+  </div>
+</article>

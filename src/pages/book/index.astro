@@ -1,0 +1,28 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BookingPanel from '../../components/BookingPanel.astro';
+import packageData from '../../data/design-packages.json';
+import { readDesignPackages } from '../../lib/design-packages.mjs';
+const projects = await getCollection('projects');
+const packages = readDesignPackages(packageData, projects.map((project) => project.id));
+---
+<BaseLayout title="Book a Design Appointment | Revive Studios" description="Plan a design appointment with Revive Studios. Explore available appointment times or contact our team about your project.">
+  <section class="px-6 py-16 md:px-12 md:py-24">
+    <div class="mx-auto max-w-5xl">
+      <a href="/holiday#design-options" class="mb-8 inline-flex min-h-11 items-center text-sm text-olive underline underline-offset-4">Explore design options</a>
+      <div class="mb-10 max-w-2xl">
+        <p class="mb-4 text-xs font-medium uppercase tracking-[0.2em] text-olive">Let's get started</p>
+        <h1 class="mb-5 font-serif text-5xl font-light md:text-6xl">Make time for your space.</h1>
+        <p class="text-lg leading-relaxed text-charcoal-light">{packages.length > 0 ? 'Choose a design package below, or explore our general appointment options.' : 'Explore appointment options for your next design project.'}</p>
+      </div>
+      {packages.length > 0 && <nav aria-label="Choose a design package" class="mb-10 grid gap-4 sm:grid-cols-2">
+        {packages.map((item) => <a href={`/book/${item.id}`} class="border border-warm-gray p-6 transition-colors hover:bg-cream-dark">
+          <span class="block font-serif text-2xl font-light">{item.name}</span>
+          <span class="mt-2 block text-sm text-olive underline underline-offset-4">Appointment options</span>
+        </a>)}
+      </nav>}
+      <BookingPanel />
+    </div>
+  </section>
+</BaseLayout>

@@ -7,6 +7,13 @@ dev:
 build:
     npm run build
 
+test:
+    node --test tests/*.test.mjs
+
+# Build disposable fixtures to verify package routes and booking states.
+test-booking-build:
+    node scripts/check-booking-build.mjs
+
 preview: build
     npm run preview
 

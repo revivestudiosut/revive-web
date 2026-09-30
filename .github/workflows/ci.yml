@@ -25,5 +25,8 @@ jobs:
 
       - run: npm ci
 
+      - name: Validate content and booking configuration
+        run: node --test tests/*.test.mjs
+
       - name: Build site
         run: npm run build

@@ -78,3 +78,12 @@
   width: 100%;
   height: auto;
 }
+
+/* Keep keyboard navigation visible and honor reduced-motion preferences. */
+a:focus-visible, button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
