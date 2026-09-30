@@ -7,6 +7,9 @@ dev:
 build:
     npm run build
 
+test:
+    node --test tests/*.test.mjs
+
 preview: build
     npm run preview
 

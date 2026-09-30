@@ -5,6 +5,7 @@ const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/about', label: 'About' },
   { href: '/services', label: 'Services' },
+  { href: '/holiday', label: 'Holiday' },
   { href: '/process', label: 'Process' },
   { href: '/portfolio', label: 'Portfolio' },
 ];
@@ -21,7 +22,7 @@ const navLinks = [
     </a>
 
     <!-- Desktop nav -->
-    <div class="hidden items-center gap-8 md:flex">
+    <div class="hidden items-center gap-6 lg:flex">
       {navLinks.map((link) => (
         <a
           href={link.href}
@@ -46,8 +47,10 @@ const navLinks = [
     <!-- Mobile hamburger -->
     <button
       id="mobile-menu-btn"
-      class="flex flex-col gap-1.5 md:hidden"
+      class="flex min-h-11 min-w-11 flex-col items-center justify-center gap-1.5 lg:hidden"
       aria-label="Toggle menu"
+      aria-controls="mobile-menu"
+      aria-expanded="false"
     >
       <span class="block h-0.5 w-6 bg-white transition-transform" id="bar1"></span>
       <span class="block h-0.5 w-6 bg-white transition-opacity" id="bar2"></span>
@@ -58,7 +61,7 @@ const navLinks = [
   <!-- Mobile menu -->
   <div
     id="mobile-menu"
-    class="hidden flex-col gap-6 bg-olive px-6 pb-8 pt-4 md:hidden"
+    class="hidden flex-col gap-6 bg-olive px-6 pb-8 pt-4 lg:hidden"
   >
     {navLinks.map((link) => (
       <a
@@ -89,8 +92,16 @@ const navLinks = [
   const bar2 = document.getElementById('bar2');
   const bar3 = document.getElementById('bar3');
 
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && btn?.getAttribute('aria-expanded') === 'true') {
+      btn.click();
+      btn.focus();
+    }
+  });
+
   btn?.addEventListener('click', () => {
     const isOpen = menu?.classList.contains('flex');
+    btn.setAttribute('aria-expanded', String(!isOpen));
     if (isOpen) {
       menu?.classList.remove('flex');
       menu?.classList.add('hidden');

@@ -289,3 +289,24 @@ Uses **direnv** to auto-load environment variables.
 2. Add it to `.env.local` with the real value.
 3. If the Pages Function needs it at runtime, also set it in the Cloudflare dashboard.
 4. If it is needed at build time, prefix with `PUBLIC_` and reference as `import.meta.env.PUBLIC_VAR_NAME`.
+
+
+## Holiday design and packages
+
+`/holiday` introduces the existing seasonal decorating service, with discovery links on
+the home and services pages. Portfolio examples come from the existing `projects`
+collection and are labeled as past interiors, not holiday-package results.
+
+Package content lives in `src/data/design-packages.json`. It starts empty intentionally.
+Do not invent package names, descriptions, inclusions, prices, or project associations.
+For each studio-approved package, add `id` (unique lowercase slug), `published`
+(boolean), `name`, `description`, `image` (local `/images/` path), `imageAlt`,
+`includes` (nonempty string array), and `projectIds` (existing project IDs; may be empty).
+`priceLabel` is optional; omit it until approved. Set `published: false` for drafts.
+Only published entries render. Missing content shows the established general services
+with an inquiry link instead of fabricated packages or a false booking confirmation.
+
+Validation lives in `src/lib/design-packages.mjs` and runs during the site build.
+Run `just test` for content tests and `just build` for the complete static build.
+Review at mobile and desktop sizes before publishing. The default package catalog is
+empty, so verify both the empty state and a temporary test-only published entry.
