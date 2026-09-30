@@ -213,19 +213,40 @@ Browser                    Cloudflare
 
 | Trigger | Workflow | Result |
 |---|---|---|
-| PR opened/updated (org member) | `.github/workflows/preview-dev.yml` | Build + deploy the PR to **dev** for review (shared `dev` alias; trusted same-repo authors only, fork PRs skipped). |
-| PR into `main` | `.github/workflows/ci.yml` | `npm ci` + build. No deploy. The required `build` check. |
+| Successful PR CI (allowlisted users) | `.github/workflows/preview-dev.yml` | Check current-main policy, then deploy the CI artifact to **dev** (shared alias; same-repo branches only). |
+| PR into `main` | `.github/workflows/ci.yml` | Policy tests + site/Functions build + short-lived artifact. No deploy secrets. The required `build` check. |
 | PR approved | `.github/workflows/automerge.yml` | Arm squash auto-merge; GitHub merges once `build` passes, then deletes the head branch. |
 | Push/merge to `main` | `.github/workflows/deploy.yml` | Build + deploy to **staging** (the integration tier / release candidate). |
 | Push/merge to `main`, **gated** | `.github/workflows/release.yml` | Auto-queues a release that **waits at the `production` gate**. On a **production owner's approval** it bumps `package.json`, commits `release vX.Y.Z`, and pushes the tag. (Skips the bot's own release commits; manual `workflow_dispatch` allows minor/major.) |
 | Push a `vX.Y.Z` tag | `.github/workflows/deploy-production.yml` | Rebuild the tagged commit, deploy to **production**. |
 
-**Flow** (three-tier ladder): an org member opens a PR -> it deploys to **dev** for review -> it gets **1 approval** -> `automerge.yml` squash-merges to `main` -> `main` deploys to **staging** and a release is **queued automatically, waiting at the production gate** -> a **production owner approves** that pending deployment -> it tags `main` and the tag deploys to **production**. Releasing is a single action: approve the pending production deployment (no separate "run the workflow" step). Concurrency keeps only the newest pending release, so the gate always represents the current staging state.
+**Flow** (three-tier ladder): an allowlisted user opens a same-repo PR -> CI passes -> it deploys to **dev** for review -> it gets **1 approval** -> `automerge.yml` squash-merges to `main` -> `main` deploys to **staging** and a release is **queued automatically, waiting at the production gate** -> a **production owner approves** that pending deployment -> it tags `main` and the tag deploys to **production**. Releasing is a single action: approve the pending production deployment (no separate "run the workflow" step). Concurrency keeps only the newest pending release, so the gate always represents the current staging state.
 
 The three tiers and what each means:
 - **dev** — `dev.revive-web.pages.dev` — the open PR under review (pre-merge). Shared alias, so concurrent PRs overwrite each other here (accepted; low velocity).
 - **staging** — `staging.revive-web.pages.dev` — the merged trunk / release candidate.
 - **production** — `revivestudiosut.com` (+ `www`) — the released site.
+
+### Dev preview allowlist
+
+The maintained list is [`.github/preview-allowlist.json`](.github/preview-allowlist.json), initially **`trentdavies`** and **`revivestudiosut-web`**. Keep the repository public. This is a publishing policy; it does not restrict who can view the public dev site or submit a PR.
+
+A preview requires an open PR targeting `main`, with its head branch in this exact repository (forks are denied), a successful current `CI` run, and **all** of these identities on the list:
+
+- The PR author
+- The original CI event actor (the person opening or updating the PR)
+- The CI rerun initiator
+- The preview workflow's original actor and its current rerun initiator
+
+GitHub preserves the original actor on reruns, so the rerun initiators are checked separately. An allowed author's PR cannot be published by an unlisted person pushing a new commit or rerunning either workflow. Conversely, an allowed maintainer rerunning an unlisted person's PR does not make it eligible. Draft PRs remain eligible. Usernames are matched case-insensitively; entries must be valid, unique GitHub usernames without `@`, spaces, wildcards, or bot suffixes. An empty, missing, invalid, or unreadable list fails closed.
+
+**Trust boundary.** `CI` builds the normal PR merge result, including precompiled Pages Functions, without deployment secrets and uploads a three-day artifact. `Deploy PR to dev` uses `workflow_run`, so its workflow and checked-out tooling come from trusted `main`. It reads the list through the GitHub API explicitly at `ref=main`, never from PR files or the build artifact. It checks the source workflow ID/path, repository IDs, successful run attempt, exact PR head, and all identities. The artifact is bound to that CI run, head SHA, and attempt. The gate is repeated immediately before deployment to catch a closed/retargeted/updated PR, a newer CI attempt, or an allowlist removal while the job was preparing. API failures deny deployment. There remains a small unavoidable interval between the final API check and the external upload.
+
+The deploy runner installs only trusted-main locked dependencies with lifecycle scripts disabled and restores no dependency cache. It downloads assets to an isolated directory, rejects symlinks/nonregular objects, and invokes trusted Wrangler from a fresh empty working directory using `--no-bundle`. PR scripts, dependencies, Functions source, and Wrangler configuration are never executed in this job. The Cloudflare token is exposed only to the final deployment step. Compiled Functions still execute later on Cloudflare with the project's **Preview** runtime bindings, so only allow users trusted with those bindings. All previews share the same `dev` alias; the most recently completed eligible deployment is what reviewers see.
+
+**Maintaining access.** Edit the JSON list in a normal reviewed PR, update the test's expected approved users, run `just test-preview-policy` and `just build-preview`, then merge through the normal review process. A PR cannot grant itself access: additions only apply after they reach `main`. Removals are checked from current `main` even on reruns of this new workflow. To test after rollout, an allowed user can push to or rerun CI for a same-repo PR and check the `Deploy PR to dev` Actions summary. Denied runs show the reason and skip credentials/deployment. Do not rerun historical jobs to test a removal.
+
+**Rollout and limitations.** Opening this policy PR does not activate it; the default-branch workflow must be merged before GitHub will run the new `workflow_run` deployment. Its unit tests, artifact build, and CI can be reviewed beforehand, but the new live gate needs post-merge verification. Existing workflows remain authoritative until then. Historical runs retain their original workflow revision and are not retroactively secured by this change. Older feature branches need the updated CI recipes before they can publish new-format artifacts. Ordinary CI still checks other contributors' PRs, including forks. The allowlist does not change repository permissions, visibility, staging, releases, or production. Existing same-repo writers can author other workflows using repository-level secrets; this policy is not a replacement for restricting that access or using protected secret environments. Those settings are deliberately outside this workflow change.
 
 ### Branch protection & the PR workflow
 

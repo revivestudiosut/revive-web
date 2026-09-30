@@ -39,7 +39,7 @@ There are three versions of the site, and changes move through them in order so 
 
 Each change moves up the three versions, gaining a review and a deploy at each step. Once you ask Claude to publish, most of it is automatic:
 
-1. **Claude opens a pull request** (a "PR") with your change, and it deploys to **dev** automatically. See it live, before anyone approves it, at <https://dev.revive-web.pages.dev>.
+1. **Claude opens a pull request** (a "PR") with your change. Once its build passes, eligible changes deploy to **dev** automatically. Preview publishing is limited to `trentdavies` and `revivestudiosut-web`; the author and the people triggering or rerunning it must all be on the [maintained list](CLAUDE.md#dev-preview-allowlist), and the branch must be in this repository. See it live, before anyone approves it, at <https://dev.revive-web.pages.dev>.
 2. **A teammate approves the PR.** They review it on GitHub and click Approve. (GitHub does not let you approve your own change, so this is always a second set of eyes.)
 3. **It merges by itself and lands on staging.** As soon as it is approved and the automated build passes, the change is squashed into the main project, its temporary branch is cleaned up, and it deploys to **staging**: <https://staging.revive-web.pages.dev>. Staging reflects everything that has been approved.
 4. **Go live with one approval.** Whenever something reaches staging, a release is lined up automatically and waits. To publish, a **release owner** opens the pending release in GitHub's _Actions_ tab and clicks **Approve** — that records a new version number and updates the live site at <https://revivestudiosut.com>. That single approval is the whole release; there is no separate "start the release" step.

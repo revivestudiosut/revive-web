@@ -7,6 +7,29 @@ dev:
 build:
     npm run build
 
+# CI prepares both assets and Functions without any deployment credentials.
+build-preview: build
+    npx --no-install wrangler pages functions build functions --outdir dist/_worker.js --build-output-directory dist --output-routes-path dist/_routes.json
+
+test-preview-policy:
+    node --test .github/scripts/preview-policy.test.mjs
+
+# Run ONLY from a trusted-main checkout. Artifact content is data, never tooling.
+# An empty working directory prevents PR-supplied Wrangler/npm config discovery.
+deploy-preview-artifact directory sha:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    artifact="$(realpath '{{directory}}')"
+    [[ '{{sha}}' =~ ^[a-f0-9]{40}$ ]] || { echo 'Invalid preview commit'; exit 1; }
+    test -f "$artifact/index.html"
+    test -f "$artifact/_worker.js/index.js"
+    test -f "$artifact/_routes.json"
+    test -z "$(find "$artifact" ! -type f ! -type d -print -quit)"
+    workdir="$(mktemp -d)"
+    trap 'rmdir "$workdir" 2>/dev/null || true' EXIT
+    cd "$workdir"
+    node '{{justfile_directory()}}/node_modules/wrangler/bin/wrangler.js' pages deploy "$artifact" --project-name revive-web --branch dev --commit-hash '{{sha}}' --no-bundle
+
 preview: build
     npm run preview
 
