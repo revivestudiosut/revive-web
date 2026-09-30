@@ -1,6 +1,7 @@
 name: CI
 
-# Build check for every PR into main. No deploy — this is the gate before trunk.
+# Build check for every PR into main. No deploy secrets. The trusted-main
+# preview workflow may publish this run's artifact after its own policy checks.
 on:
   pull_request:
     branches: [main]
@@ -16,14 +17,31 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version-file: .nvmrc
           cache: npm
 
+      - uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b # v3
+        with:
+          just-version: '1.58.0'
+
       - run: npm ci
 
-      - name: Build site
-        run: npm run build
+      - name: Test preview policy
+        run: just test-preview-policy
+
+      - name: Build site and Pages Functions
+        run: just build-preview
+
+      - name: Upload prepared preview
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: dev-preview-${{ github.event.pull_request.head.sha }}-${{ github.run_attempt }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 3

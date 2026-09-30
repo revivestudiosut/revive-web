@@ -1,51 +1,84 @@
 name: Deploy PR to dev
 
-# When an organization member opens/updates a PR (from a branch in THIS repo, not a fork),
-# build it and deploy to the shared `dev` alias so reviewers can see the change live before
-# it is merged. Gated to trusted authors because the deploy uses CLOUDFLARE_API_TOKEN; fork
-# PRs receive no secrets and are skipped (ci.yml still build-checks every PR).
-#
-# Low-velocity site: the `dev` alias is shared, so two open PRs deploying at once would
-# overwrite each other on dev.revive-web.pages.dev. Accepted tradeoff for simplicity.
+# workflow_run loads this workflow from main, never a PR's modified workflow.
+# CI builds without deploy secrets. This job only handles its output as data.
 on:
-  pull_request:
-    types: [opened, reopened, synchronize]
-    branches: [main]
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
 
 permissions:
   contents: read
+  actions: read
+  pull-requests: read
 
+# Shared dev alias. Denied runs must not cancel an in-flight deployment.
 concurrency:
-  group: deploy-dev-pr-${{ github.event.number }}
-  cancel-in-progress: true
+  group: deploy-dev-preview
+  cancel-in-progress: false
 
 jobs:
   deploy-dev:
-    if: >-
-      github.event.pull_request.head.repo.fork == false &&
-      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association)
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5
+      - name: Check out trusted deployment tooling
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: refs/heads/main
+          persist-credentials: false
 
-      - uses: actions/setup-node@v5
+      - name: Check current preview policy
+        id: policy
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node .github/scripts/preview-policy.mjs
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        if: steps.policy.outputs.allowed == 'true'
         with:
           node-version-file: .nvmrc
-          cache: npm
+          package-manager-cache: false
 
-      - run: npm ci
+      - uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b # v3
+        if: steps.policy.outputs.allowed == 'true'
+        with:
+          just-version: '1.58.0'
 
-      - name: Build site
-        run: npm run build
+      - name: Install trusted-main deployment dependencies
+        if: steps.policy.outputs.allowed == 'true'
+        run: npm ci --ignore-scripts
 
-      - name: Deploy to dev
-        run: npx wrangler pages deploy dist --project-name revive-web --branch dev
+      - name: Download this CI attempt's build only
+        if: steps.policy.outputs.allowed == 'true'
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: ${{ steps.policy.outputs.artifact_name }}
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/preview-artifact
+
+      - name: Recheck current policy and PR head before deploying
+        if: steps.policy.outputs.allowed == 'true'
+        id: recheck
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node .github/scripts/preview-policy.mjs
+
+      - name: Deploy prepared artifact to dev
+        if: steps.recheck.outputs.allowed == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          PREVIEW_ARTIFACT: ${{ runner.temp }}/preview-artifact
+          PREVIEW_SHA: ${{ steps.recheck.outputs.head_sha }}
+        run: just deploy-preview-artifact "$PREVIEW_ARTIFACT" "$PREVIEW_SHA"
 
       - name: Note dev URL
+        if: steps.recheck.outputs.allowed == 'true'
         env:
-          PR_NUMBER: ${{ github.event.number }}
+          PR_NUMBER: ${{ steps.recheck.outputs.pr_number }}
+          PREVIEW_SHA: ${{ steps.recheck.outputs.head_sha }}
         run: |
-          echo "Deployed PR #${PR_NUMBER} to https://dev.revive-web.pages.dev" >> "$GITHUB_STEP_SUMMARY"
+          echo "Deployed PR #${PR_NUMBER} (${PREVIEW_SHA}) to https://dev.revive-web.pages.dev" >> "$GITHUB_STEP_SUMMARY"
