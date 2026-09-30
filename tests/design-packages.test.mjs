@@ -24,3 +24,9 @@ test('rejects duplicate IDs, unknown projects, missing details and remote images
     [{ ...sample(), id: '<script>' }],
   ]) assert.throws(() => readDesignPackages(items, ['existing']));
 });
+
+test('package booking override is optional and must be a public Google schedule', () => {
+  const item = { ...sample(), bookingUrl: 'https://calendar.app.google/TestSchedule123' };
+  assert.deepEqual(readDesignPackages([item], ['existing']), [item]);
+  assert.throws(() => readDesignPackages([{ ...sample(), bookingUrl: 'javascript:alert(1)' }], ['existing']));
+});

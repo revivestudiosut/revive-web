@@ -1,3 +1,5 @@
+import { validateGoogleBookingUrl } from './booking.mjs';
+
 /**
  * Validate editorial package content before publishing. The catalog intentionally
  * starts empty: add only studio-approved descriptions, prices and photography.
@@ -25,6 +27,9 @@ export function readDesignPackages(value, projectIds = []) {
     }
     if (!Array.isArray(item.includes) || item.includes.length === 0 || !item.includes.every(text)) {
       throw new Error(`${item.id}: includes must contain approved package details.`);
+    }
+    if (item.bookingUrl !== undefined && !validateGoogleBookingUrl(item.bookingUrl)) {
+      throw new Error(`${item.id}: bookingUrl must be a supported public Google Appointment Schedule link.`);
     }
     if (item.priceLabel !== undefined && !text(item.priceLabel)) throw new Error(`${item.id}: priceLabel must be nonempty when supplied.`);
     if (!Array.isArray(item.projectIds) || !item.projectIds.every((id) => projectIds.includes(id))) {

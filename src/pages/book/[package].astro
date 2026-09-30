@@ -1,0 +1,27 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BookingPanel from '../../components/BookingPanel.astro';
+import packageData from '../../data/design-packages.json';
+import { readDesignPackages } from '../../lib/design-packages.mjs';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  const packages = readDesignPackages(packageData, projects.map((project) => project.id));
+  return packages.map((item) => ({ params: { package: item.id }, props: { item } }));
+}
+const { item } = Astro.props;
+---
+<BaseLayout title={`${item.name} Appointments | Revive Studios`} description={`Explore appointment options for ${item.name} with Revive Studios.`}>
+  <section class="px-6 py-16 md:px-12 md:py-24">
+    <div class="mx-auto max-w-5xl">
+      <a href={`/holiday#package-${item.id}`} class="mb-8 inline-flex min-h-11 items-center text-sm text-olive underline underline-offset-4">Back to design packages</a>
+      <div class="mb-10 max-w-2xl">
+        <p class="mb-4 text-xs font-medium uppercase tracking-[0.2em] text-olive">Design appointment</p>
+        <h1 class="mb-5 font-serif text-5xl font-light md:text-6xl">{item.name}</h1>
+        <p class="text-lg leading-relaxed text-charcoal-light">{item.description}</p>
+      </div>
+      <BookingPanel packageName={item.name} bookingUrl={item.bookingUrl} />
+    </div>
+  </section>
+</BaseLayout>

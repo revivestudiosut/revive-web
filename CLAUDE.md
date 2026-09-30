@@ -310,3 +310,64 @@ Validation lives in `src/lib/design-packages.mjs` and runs during the site build
 Run `just test` for content tests and `just build` for the complete static build.
 Review at mobile and desktop sizes before publishing. The default package catalog is
 empty, so verify both the empty state and a temporary test-only published entry.
+
+
+### Google Calendar booking activation
+
+`/book` uses Google's native **Appointment Schedules**, reached through a normal
+same-tab link. The site never guesses availability, collects attendee details,
+loads a third-party iframe, creates Calendar events, or displays a booking success.
+There are no Calendar API credentials or custom check-then-insert race conditions.
+Google owns the available slots, booking confirmation and cancellation experience.
+The direct link works without JavaScript and does not depend on popup permissions.
+
+The build-time configuration is disabled by default:
+- `PUBLIC_BOOKING_ENABLED=true` explicitly enables safe configured links.
+- `PUBLIC_GOOGLE_BOOKING_URL` is the studio's public appointment booking-page link.
+- A published package may supply its own `bookingUrl`. Its `/book/<id>` page uses
+  that schedule; otherwise it falls back to the general schedule and explains that
+  the package name is not automatically transferred to Google.
+- Missing/invalid general configuration falls back to an inquiry with an explicit
+  message that no time has been reserved. A configured URL proves only the link
+  is syntactically safe, not that the schedule is available or has openings.
+- Use a copied share link on `calendar.app.google/<token>` or
+  `calendar.google.com/calendar[/u/<number>]/appointments/schedules/<token>`.
+  Query parameters, fragments, credentials, explicit ports and arbitrary hosts
+  are rejected. Copy the **booking-page link**, not Google iframe markup.
+
+Before turning booking on:
+1. Confirm the appointment is the intended consultation/design/installation
+   service. Set duration, business timezone, location, buffers, advance notice,
+   daily limits and cancellation details in the Revive Google Workspace account.
+2. Create a stable Appointment Schedule on the intended studio calendar. Keep
+   unintended recurring hours closed. Staff can open specific dates/times with
+   **Add availability to an existing schedule** rather than creating a URL per slot.
+3. Explicitly enable **Check calendars for availability** and select every calendar
+   that blocks the team. Co-host calendars are **not checked by default**. Check
+   Workspace plan eligibility for multiple schedules/calendars and co-hosts.
+4. Obtain the public share URL. Inspect it signed out: the right service and only
+   intended slots must appear. Do not make the private calendar itself public.
+5. Configure a separate package `bookingUrl` when duration, team, buffers or
+   availability differ. Confirm each schedule's identity; do not append package
+   query parameters and assume Google will record them. Add only approved content.
+6. Put the public values in the build environment, rebuild with `just build`, and
+   review the dev preview. Never put tokens, private links or attendee data in
+   `PUBLIC_` variables. Rebuild is required after changing configuration.
+7. With studio approval, test a disposable appointment end to end: correct timezone
+   and team calendars, confirmation email, disappearance of the selected slot,
+   conflicting Busy events, cancellation email and whether cancellation reopens the
+   slot. Do not perform this test against real availability without authorization.
+
+Google guidance:
+- [Create schedules](https://support.google.com/calendar/answer/10729749?hl=en)
+- [Open specific times](https://support.google.com/calendar/answer/10730791?hl=en)
+- [Share the booking page](https://support.google.com/calendar/answer/10733297?hl=en)
+- [Avoid conflicts](https://support.google.com/calendar/answer/16287054?hl=en)
+- [Workspace feature eligibility](https://support.google.com/calendar/answer/16287038?hl=en)
+
+Run `just test` for content and URL security tests, `just test-booking-build` for
+disposable static-build fixtures (no Calendar requests), then `just build`. Before release,
+verify empty catalog, unpublished packages, valid per-package overrides, general
+fallback, disabled/missing/invalid URLs, no slots on Google, keyboard navigation,
+mobile layout and Back/Forward. The website cannot inspect Google's actual slot
+availability; live appointment verification remains a separate activation step.

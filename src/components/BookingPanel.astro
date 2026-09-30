@@ -1,0 +1,33 @@
+---
+import { getBookingConfig } from '../lib/booking.mjs';
+interface Props {
+  packageName?: string;
+  bookingUrl?: string;
+}
+const { packageName, bookingUrl } = Astro.props;
+const usesGeneralSchedule = !bookingUrl;
+const booking = getBookingConfig({
+  enabled: import.meta.env.PUBLIC_BOOKING_ENABLED,
+  bookingUrl: bookingUrl ?? import.meta.env.PUBLIC_GOOGLE_BOOKING_URL,
+});
+---
+<section class="border border-warm-gray bg-white p-6 md:p-10" aria-labelledby="booking-panel-title">
+  {booking.enabled ? (
+    <>
+      <p class="mb-4 text-xs font-medium uppercase tracking-[0.15em] text-olive">Booking with Google Calendar</p>
+      <h2 id="booking-panel-title" class="mb-5 font-serif text-3xl font-light md:text-4xl">Find a time that works.</h2>
+      <p class="mb-5 leading-relaxed text-charcoal-light">Continue to our Google booking page to see the times our team has opened. Review the appointment details and complete your booking there.</p>
+      {packageName && usesGeneralSchedule && <p class="mb-5 border-l-2 border-warm-gray pl-4 text-sm leading-relaxed text-charcoal-light">This is our general booking page. Your interest in {packageName} is not sent automatically. Choose the matching appointment type and include the package name in your booking notes.</p>}
+      <a href={booking.href} rel="noreferrer" class="inline-flex min-h-11 items-center justify-center bg-olive px-6 py-3.5 text-center text-xs font-medium uppercase tracking-[0.15em] text-white transition-colors hover:bg-olive-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-olive">View available times on Google</a>
+      <p class="mt-5 text-sm leading-relaxed text-charcoal-light">You'll leave this site to book securely with Google. A time is reserved only after you complete booking and receive confirmation from Google Calendar. If no times work for you, <a href="/contact" class="text-olive underline underline-offset-4">contact our team</a>.</p>
+    </>
+  ) : (
+    <>
+      <p class="mb-4 text-xs font-medium uppercase tracking-[0.15em] text-olive">Plan your appointment</p>
+      <h2 id="booking-panel-title" class="mb-5 font-serif text-3xl font-light md:text-4xl">Let's find the right time.</h2>
+      <p class="mb-6 leading-relaxed text-charcoal-light">Online scheduling isn't available here yet. Send us a message about your project and preferred timing, and our team will help with next steps.</p>
+      <a href="/contact" class="inline-flex min-h-11 items-center justify-center bg-olive px-6 py-3.5 text-center text-xs font-medium uppercase tracking-[0.15em] text-white transition-colors hover:bg-olive-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-olive">Ask about an appointment</a>
+      <p class="mt-5 text-sm text-charcoal-light">Sending an inquiry does not reserve a time.</p>
+    </>
+  )}
+</section>
