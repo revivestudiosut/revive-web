@@ -10,11 +10,11 @@ const navLinks = [
 ];
 ---
 
-<header class="sticky top-0 z-50 bg-olive">
+<header class="sticky top-0 z-50 bg-inkwell bg-[url('/images/pattern-dark.png')] bg-repeat [background-size:180px]">
   <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-3 md:px-12">
     <a href="/" class="flex-shrink-0">
       <img
-        src="/images/logo-white.png"
+        src="/images/logo-horizontal-dark-bg.png"
         alt="Revive Studios"
         class="h-14 w-auto md:h-16"
       />
@@ -37,7 +37,7 @@ const navLinks = [
       ))}
       <a
         href="/contact"
-        class="ml-2 border border-white px-5 py-2 text-xs font-sans font-medium uppercase tracking-[0.15em] text-white transition-colors hover:bg-white hover:text-olive"
+        class="ml-2 border border-camel-light px-5 py-2 text-xs font-sans font-medium uppercase tracking-[0.15em] text-camel-light transition-colors hover:bg-camel-light hover:text-inkwell"
       >
         Book Consultation
       </a>
@@ -58,7 +58,7 @@ const navLinks = [
   <!-- Mobile menu -->
   <div
     id="mobile-menu"
-    class="hidden flex-col gap-6 bg-olive px-6 pb-8 pt-4 md:hidden"
+    class="hidden flex-col gap-6 bg-inkwell px-6 pb-8 pt-4 md:hidden"
   >
     {navLinks.map((link) => (
       <a
@@ -75,7 +75,7 @@ const navLinks = [
     ))}
     <a
       href="/contact"
-      class="mt-2 border border-white px-5 py-2 text-center text-sm font-sans font-medium uppercase tracking-[0.15em] text-white transition-colors hover:bg-white hover:text-olive"
+      class="mt-2 border border-camel-light px-5 py-2 text-center text-sm font-sans font-medium uppercase tracking-[0.15em] text-camel-light transition-colors hover:bg-camel-light hover:text-inkwell"
     >
       Book Consultation
     </a>

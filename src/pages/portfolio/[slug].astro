@@ -42,23 +42,23 @@ const galleryCols3 = [0, 1, 2].map(c => galleryWithIdx.filter(({ i }) => i % 3 =
     <div class="mx-auto max-w-7xl">
       <a
         href="/portfolio"
-        class="mb-8 inline-flex items-center gap-2 text-sm text-charcoal-light transition-colors hover:text-olive"
+        class="mb-8 inline-flex items-center gap-2 text-sm text-inkwell-light transition-colors hover:text-camel"
       >
         <span>&larr;</span> Back to Portfolio
       </a>
-      <h1 class="mb-3 font-serif text-4xl font-light text-charcoal md:text-5xl lg:text-6xl">
+      <h1 class="mb-3 font-serif text-4xl font-light text-inkwell md:text-5xl lg:text-6xl">
         {title}
       </h1>
-      <p class="mb-6 text-sm uppercase tracking-[0.1em] text-olive">
+      <p class="mb-6 text-sm uppercase tracking-[0.1em] text-brown">
         {location}
       </p>
       {description && (
-        <p class="max-w-3xl text-lg leading-relaxed text-charcoal-light">
+        <p class="max-w-3xl text-lg leading-relaxed text-inkwell-light">
           {description}
         </p>
       )}
       {hasBody && (
-        <div class="prose-journal mt-10 max-w-3xl font-sans text-base leading-relaxed text-charcoal">
+        <div class="prose-journal mt-10 max-w-3xl font-sans text-base leading-relaxed text-inkwell">
           <Content />
         </div>
       )}
@@ -120,13 +120,13 @@ const galleryCols3 = [0, 1, 2].map(c => galleryWithIdx.filter(({ i }) => i % 3 =
 
   <!-- From the Journal (project-linked posts) -->
   {journalPosts.length > 0 && (
-    <section class="bg-cream-dark px-6 py-20 md:px-12 md:py-28">
+    <section class="bg-chai px-6 py-20 md:px-12 md:py-28">
       <div class="mx-auto max-w-7xl">
         <div class="mb-12">
-          <p class="mb-3 text-xs font-sans font-medium uppercase tracking-[0.15em] text-olive">
+          <p class="mb-3 text-xs font-sans font-medium uppercase tracking-[0.15em] text-brown">
             From the Journal
           </p>
-          <h2 class="font-serif text-3xl font-light text-charcoal md:text-4xl">
+          <h2 class="font-serif text-3xl font-light text-inkwell md:text-4xl">
             Behind the {title}
           </h2>
         </div>
@@ -143,20 +143,20 @@ const galleryCols3 = [0, 1, 2].map(c => galleryWithIdx.filter(({ i }) => i % 3 =
       <div class="mx-auto flex max-w-7xl items-stretch justify-between gap-8">
         {prev ? (
           <a href={`/portfolio/${prev.id}`} class="group flex-1">
-            <p class="mb-2 text-xs font-sans font-medium uppercase tracking-[0.15em] text-charcoal-light">
+            <p class="mb-2 text-xs font-sans font-medium uppercase tracking-[0.15em] text-inkwell-light">
               Previous Project
             </p>
-            <p class="font-serif text-xl font-light text-charcoal transition-colors group-hover:text-olive md:text-2xl">
+            <p class="font-serif text-xl font-light text-inkwell transition-colors group-hover:text-camel md:text-2xl">
               {prev.data.title}
             </p>
           </a>
         ) : <div class="flex-1" />}
         {next ? (
           <a href={`/portfolio/${next.id}`} class="group flex-1 text-right">
-            <p class="mb-2 text-xs font-sans font-medium uppercase tracking-[0.15em] text-charcoal-light">
+            <p class="mb-2 text-xs font-sans font-medium uppercase tracking-[0.15em] text-inkwell-light">
               Next Project
             </p>
-            <p class="font-serif text-xl font-light text-charcoal transition-colors group-hover:text-olive md:text-2xl">
+            <p class="font-serif text-xl font-light text-inkwell transition-colors group-hover:text-camel md:text-2xl">
               {next.data.title}
             </p>
           </a>
@@ -166,7 +166,7 @@ const galleryCols3 = [0, 1, 2].map(c => galleryWithIdx.filter(({ i }) => i % 3 =
   )}
 
   <!-- CTA -->
-  <section class="bg-olive px-6 py-20 md:px-12 md:py-28">
+  <section class="bg-peacock px-6 py-20 md:px-12 md:py-28">
     <div class="mx-auto max-w-3xl text-center">
       <h2 class="mb-4 font-serif text-4xl font-light text-white md:text-5xl">
         Love This Project?
@@ -176,7 +176,7 @@ const galleryCols3 = [0, 1, 2].map(c => galleryWithIdx.filter(({ i }) => i % 3 =
       </p>
       <a
         href="/contact"
-        class="inline-block border-2 border-white px-8 py-3.5 text-xs font-sans font-medium uppercase tracking-[0.2em] text-white transition-all hover:bg-white hover:text-olive"
+        class="inline-block border-2 border-white px-8 py-3.5 text-xs font-sans font-medium uppercase tracking-[0.2em] text-white transition-all hover:bg-white hover:text-camel"
       >
         Book a Consultation
       </a>
