@@ -3,6 +3,17 @@
 @tailwind utilities;
 
 @layer base {
+  /* Roseritta: single-weight display serif, self-hosted. The weight range
+     keeps font-light/font-semibold headings from triggering faux bolding. */
+  @font-face {
+    font-family: 'roseritta';
+    src: url('/fonts/roseritta.woff2') format('woff2'),
+      url('/fonts/roseritta.woff') format('woff');
+    font-weight: 300 600;
+    font-style: normal;
+    font-display: swap;
+  }
+
   html {
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
@@ -10,7 +21,8 @@
   }
 
   body {
-    @apply bg-cream text-charcoal font-sans;
+    /* Merel Light is the body weight; Merel Medium (500) is for nav/labels */
+    @apply bg-cream text-inkwell font-sans font-light;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -19,19 +31,19 @@
 }
 
 .prose-journal h2 {
-  font-family: 'Cormorant Garamond', serif;
-  font-weight: 300;
+  font-family: 'roseritta', Georgia, serif;
+  font-weight: 400;
   font-size: 1.875rem;
   line-height: 1.2;
-  color: #2c2c2c;
+  color: #2c3538;
   margin-top: 2.5rem;
   margin-bottom: 1rem;
 }
 .prose-journal h3 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'roseritta', Georgia, serif;
   font-weight: 400;
   font-size: 1.5rem;
-  color: #2c2c2c;
+  color: #2c3538;
   margin-top: 2rem;
   margin-bottom: 0.75rem;
 }
@@ -53,25 +65,25 @@
   margin-bottom: 0.5rem;
 }
 .prose-journal a {
-  color: #5f6961;
+  color: #70563d;
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
   transition: color 0.2s;
 }
 .prose-journal a:hover {
-  color: #4a534c;
+  color: #a27c5b;
 }
 .prose-journal strong {
   font-weight: 500;
-  color: #2c2c2c;
+  color: #2c3538;
 }
 .prose-journal blockquote {
-  border-left: 2px solid #5f6961;
+  border-left: 2px solid #a27c5b;
   padding-left: 1.5rem;
   margin: 2rem 0;
   font-style: italic;
-  color: #6b6b6b;
+  color: #5c6a6c;
 }
 .prose-journal img {
   margin: 2rem 0;

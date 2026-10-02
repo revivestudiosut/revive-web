@@ -29,7 +29,7 @@ just clean              # Remove dist, .astro, node_modules
 |-------|-----------|-------------------|
 | Framework | Astro 5 (static site, minimal client JS) | `astro.config.mjs` |
 | Styling | Tailwind CSS 3 with custom design tokens | `tailwind.config.mjs` |
-| Fonts | Google Fonts (Cormorant Garamond + Inter) | Loaded in `src/layouts/BaseLayout.astro` |
+| Fonts | Roseritta (self-hosted, `public/fonts/`) + Merel (Adobe Typekit kit `hif6tau`) | `src/styles/global.css`, `src/layouts/BaseLayout.astro` |
 | Content | Markdown content collections (portfolio + journal) | `src/content.config.ts`, `src/content/` |
 | Images | Static files referenced by path | `public/images/` |
 | Contact form | Cloudflare Pages Function | `functions/api/contact.ts` |
@@ -50,33 +50,33 @@ just clean              # Remove dist, .astro, node_modules
 
 ## Design System
 
-### Brand Palette (from original design system)
+### Brand Palette (2026 rebrand style guide)
 
 | Token | Hex | RGB | Usage |
 |-------|-----|-----|-------|
-| Olive | `#5f6961` | 95, 105, 97 | Primary brand: top banner, buttons, CTAs |
-| Taupe 1 | `#f0eade` | 240, 234, 222 | Alternate section backgrounds (`cream-dark`) |
-| Taupe 2 | `#e6e0d0` | 230, 224, 208 | Borders, dividers (`warm-gray`) |
-| Taupe 3 | `#c7bead` | 199, 190, 173 | Available for subtle accents |
-| Taupe 4 | `#b5ad9e` | 181, 173, 158 | Available for muted elements |
-| Taupe 5 | `#a39886` | 163, 152, 134 | Available for secondary text |
-| Mauve Light | `#bb9c87` | 187, 156, 135 | Warm accent option |
-| Mauve Dark | `#84675a` | 132, 103, 90 | Warm accent option (darker) |
+| Inkwell | `#2c3538` | 44, 53, 56 | Primary dark: header + footer backgrounds, body text |
+| Dark Peacock | `#3f4f4f` | 63, 79, 79 | Secondary dark: CTA section backgrounds |
+| Camel | `#a27c5b` | 162, 124, 91 | Primary accent: filled buttons, borders, link hovers |
+| Light Camel | `#c2aa94` | 194, 170, 148 | Light accent: decorative numerals, accents on dark backgrounds |
+| Chai | `#ddd7c9` | 221, 215, 201 | Alternate section backgrounds |
+| Dark Brown | `#70563d` | 112, 86, 61 | Text-sized accent (readable on cream), button hover fills |
+| Black | `#000000` | 0, 0, 0 | Reserved; body text uses Inkwell |
 
 ### Tailwind Tokens (in `tailwind.config.mjs`)
-- **Olive** `#5f6961` / **Olive Light** `#7a847c` / **Olive Dark** `#4a534c`
-- **Cream** `#faf8f5`: page background
-- **Cream Dark** `#f0eade`: alternate section backgrounds (= Taupe 1)
-- **Warm Gray** `#e6e0d0`: borders, dividers (= Taupe 2)
-- **Charcoal** `#2c2c2c`: body text
-- **Charcoal Light** `#6b6b6b`: muted/secondary text
-
-Not all brand palette colors are in the Tailwind config yet. Add Taupe 3-5 and the Mauves to `tailwind.config.mjs` if needed.
+- **Inkwell** `#2c3538`: body text, dark header/footer backgrounds
+- **Inkwell Light** `#5c6a6c`: muted/secondary text (derived neutral, not in the style guide)
+- **Peacock** `#3f4f4f`: CTA section backgrounds
+- **Camel** `#a27c5b` / **Camel Light** `#c2aa94`: accents
+- **Brown** `#70563d`: dark warm accent, small accent text
+- **Chai** `#ddd7c9`: alternate section backgrounds
+- **Cream** `#f8f6f1`: page background (derived warm white, not in the style guide)
+- **Warm Gray** `#d6d0c2`: borders, dividers (derived from Chai, not in the style guide)
 
 ### Typography
-- **Headings**: Cormorant Garamond (serif), weights 300, 400, 600. Always use `font-serif`, typically `font-light`.
-- **Body**: Inter (sans-serif), weights 300, 400, 500. Default via `src/styles/global.css`.
-- Loaded via Google Fonts in the `BaseLayout` `<head>`.
+- **Headings + hero copy**: Roseritta (ligature display serif), self-hosted at `public/fonts/`, registered as `font-serif`. One physical weight; the `@font-face` declares `font-weight: 300 600` so existing `font-light`/`font-semibold` headings all render the same real weight.
+- **Body copy**: Merel Light (300), via Adobe Typekit kit `https://use.typekit.net/hif6tau.css`, registered as `font-sans`. The body element defaults to `font-light`.
+- **Navigation / labels** (e.g. nav links, "Quick Links"): Merel Medium, i.e. `font-sans font-medium` (500).
+- Merel only ships weights 300 and 500 in the kit; do not use `font-normal` (400) for sans text.
 
 ### Spacing
 - Section padding: `py-20 md:py-28`
@@ -86,15 +86,15 @@ Not all brand palette colors are in the Tailwind config yet. Add Taupe 3-5 and t
 
 ### Conventions
 - **Buttons/CTAs**: bordered, uppercase, tracked lettering (`text-xs uppercase tracking-[0.15em]` or `tracking-[0.2em]`).
-- **Section backgrounds**: alternate between `bg-cream` (default), `bg-cream-dark`, and `bg-olive` (for CTAs) for visual rhythm.
+- **Section backgrounds**: alternate between `bg-cream` (default), `bg-chai`, and `bg-peacock` (for CTAs) for visual rhythm.
 - **Photo treatment**: `object-cover` inside `overflow-hidden` containers, with subtle `hover:scale-105` on interactive items.
 - **Copy**: no em dashes anywhere on the site; avoid AI-slop phrasing.
 
 ## Key Design Decisions
 
-- The olive banner header with the white logo is a core brand element. Keep it.
+- Per the style guide, the header logo sits over the dark RR pattern tile (`/images/pattern-dark.png` repeated on an Inkwell background). Keep it.
 - Photos are the star. Use full-bleed sections, large aspect ratios, and subtle hover effects.
-- CTA sections use an olive background with white text.
+- CTA sections use a Dark Peacock background with white text.
 
 ## File Structure
 
@@ -143,8 +143,8 @@ functions/
 
 ### Modifying the header
 - File: `src/components/Header.astro`.
-- The olive background is `bg-olive` (`#5f6961` in `tailwind.config.mjs`).
-- Logo: `public/images/logo-white.png`, white on transparent, displayed at `h-14 md:h-16`.
+- The background is the dark RR pattern tile (`/images/pattern-dark.png`, repeated at 180px) over `bg-inkwell`.
+- Logo: `public/images/logo-horizontal-dark-bg.png` (horizontal lockup for dark backgrounds), displayed at `h-14 md:h-16`.
 - The mobile menu uses a small inline `<script>` for the toggle. It is the only JS on the site.
 
 ### Modifying styles/colors
@@ -174,7 +174,10 @@ This repo ships skills under `.claude/skills/`. Prefer them over doing the work 
 ## Images
 
 All images live in `public/images/`. Key files:
-- `logo-white.png`: white logo for dark/olive backgrounds (header, footer).
+- `logo-horizontal-dark-bg.png` / `logo-horizontal-light-bg.png`: 2026 horizontal logo lockups for dark (header, footer) and light (About page) backgrounds.
+- `pattern-dark.png` / `pattern-light.png`: repeating RR pattern tiles from the style guide (dark tile is the header background).
+- `favicon.png`: round RR mark.
+- `logo-white.png`, `revive-logo-white-sq.png`: pre-2026 logos, no longer referenced.
 - `ponderosa-kitchen.jpg`: shared hero image (homepage hero, Process step 04, Ponderosa House project).
 - `photo-megan.jpg`, `photo-cassidy.jpg`: team portraits (About page).
 - `piano-room-*.jpg`, `portfolio-*.jpg`, `ponderosa-*.jpg`, etc.: project photography.

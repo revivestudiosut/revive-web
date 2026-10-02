@@ -34,17 +34,17 @@ const formattedDate = publishedAt.toLocaleDateString('en-US', {
     <div class="mx-auto max-w-3xl">
       <a
         href="/portfolio/journal"
-        class="mb-8 inline-flex items-center gap-2 text-sm text-charcoal-light transition-colors hover:text-olive"
+        class="mb-8 inline-flex items-center gap-2 text-sm text-inkwell-light transition-colors hover:text-camel"
       >
         <span>&larr;</span> Back to Journal
       </a>
-      <p class="mb-4 text-xs font-sans font-medium uppercase tracking-[0.15em] text-olive">
+      <p class="mb-4 text-xs font-sans font-medium uppercase tracking-[0.15em] text-brown">
         {formattedDate}
       </p>
-      <h1 class="mb-6 font-serif text-4xl font-light text-charcoal md:text-5xl lg:text-6xl">
+      <h1 class="mb-6 font-serif text-4xl font-light text-inkwell md:text-5xl lg:text-6xl">
         {title}
       </h1>
-      <p class="text-lg leading-relaxed text-charcoal-light">
+      <p class="text-lg leading-relaxed text-inkwell-light">
         {description}
       </p>
     </div>
@@ -68,7 +68,7 @@ const formattedDate = publishedAt.toLocaleDateString('en-US', {
 
   <!-- Body -->
   <article class="px-6 pb-12 md:px-12 md:pb-16">
-    <div class="prose-journal mx-auto max-w-3xl font-sans text-base leading-relaxed text-charcoal">
+    <div class="prose-journal mx-auto max-w-3xl font-sans text-base leading-relaxed text-inkwell">
       <Content />
     </div>
   </article>
@@ -79,15 +79,15 @@ const formattedDate = publishedAt.toLocaleDateString('en-US', {
       <div class="mx-auto max-w-3xl">
         <a
           href={`/portfolio/${linkedProject.id}`}
-          class="group block border border-warm-gray bg-cream-dark p-8 transition-colors hover:border-olive"
+          class="group block border border-warm-gray bg-chai p-8 transition-colors hover:border-camel"
         >
-          <p class="mb-2 text-xs font-sans font-medium uppercase tracking-[0.15em] text-charcoal-light">
+          <p class="mb-2 text-xs font-sans font-medium uppercase tracking-[0.15em] text-inkwell-light">
             Part of the Project
           </p>
-          <p class="font-serif text-2xl font-light text-charcoal transition-colors group-hover:text-olive">
+          <p class="font-serif text-2xl font-light text-inkwell transition-colors group-hover:text-camel">
             {linkedProject.data.title}
           </p>
-          <p class="mt-1 text-sm text-charcoal-light">
+          <p class="mt-1 text-sm text-inkwell-light">
             {linkedProject.data.location}
           </p>
         </a>
@@ -101,7 +101,7 @@ const formattedDate = publishedAt.toLocaleDateString('en-US', {
       <div class="mx-auto max-w-3xl">
         <div class="flex flex-wrap gap-2">
           {tags.map((tag) => (
-            <span class="border border-warm-gray px-3 py-1 text-xs font-sans uppercase tracking-[0.1em] text-charcoal-light">
+            <span class="border border-warm-gray px-3 py-1 text-xs font-sans uppercase tracking-[0.1em] text-inkwell-light">
               {tag}
             </span>
           ))}
@@ -111,7 +111,7 @@ const formattedDate = publishedAt.toLocaleDateString('en-US', {
   )}
 
   <!-- CTA -->
-  <section class="bg-olive px-6 py-20 md:px-12 md:py-28">
+  <section class="bg-peacock px-6 py-20 md:px-12 md:py-28">
     <div class="mx-auto max-w-3xl text-center">
       <h2 class="mb-4 font-serif text-4xl font-light text-white md:text-5xl">
         Ready to Start Your Project?
@@ -121,7 +121,7 @@ const formattedDate = publishedAt.toLocaleDateString('en-US', {
       </p>
       <a
         href="/contact"
-        class="inline-block border-2 border-white px-8 py-3.5 text-xs font-sans font-medium uppercase tracking-[0.2em] text-white transition-all hover:bg-white hover:text-olive"
+        class="inline-block border-2 border-white px-8 py-3.5 text-xs font-sans font-medium uppercase tracking-[0.2em] text-white transition-all hover:bg-white hover:text-camel"
       >
         Book a Consultation
       </a>
